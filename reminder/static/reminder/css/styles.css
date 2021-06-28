@@ -1,0 +1,134 @@
+#main, #agendas, #new {
+    cursor: pointer;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.main-content {
+    margin: 2%;
+}
+
+.dark-theme {
+    background-color: #121212;
+}
+
+.bg-purplelight {
+    background-color: #332940;
+}
+
+.bg-purpledark {
+    background-color: #1F1A24;
+}
+
+.input {
+    width: 100%;
+}
+
+.sky {
+    background-image: url("../images/smallCloud.svg"), url("../images/mediumCloud.svg"), url("../images/cloud.svg"), linear-gradient(#A1D6F3, #CAE8F8);
+    background-attachment:fixed;
+    background-repeat: no-repeat;
+    background-size: 250px, 250px, 200px, unset;
+    animation-name: move;
+    animation-duration: 8s;
+    animation-fill-mode: forwards;
+}
+
+.brigadeiro-sky {
+    background-image: linear-gradient(#A1D6F3, #CAE8F8);
+    background-attachment:fixed;
+}
+
+@keyframes move {
+    from {
+        background-position: -25% 15%, -25% 40%, -25% 93%;
+    }
+    to {
+        background-position: 10% 15%, 90% 40%, 40% 93%;
+    }
+}
+
+.form-layout {
+    width: 30%;
+    padding: 2% 5% 5% 5%;
+}
+
+.empty-card {
+    border: solid;
+    border-color: grey;
+    border-style: dashed;
+}
+
+.empty-card:hover {
+    background-color: lightgrey;
+}
+
+.calendar-menu {
+    float: right;
+    margin: 1%;
+}
+
+.line-input {
+    outline: 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #000000;
+    border-radius: 0px;
+}
+
+.line-input:focus {
+    border-color: lightblue;
+}
+
+.reminder-button {
+    border: none;
+    border-bottom: 1px solid #000000;
+    border-radius: 0px;
+}
+
+.reminder-button:focus {
+    border-color: lightblue;
+}
+
+@media only screen and (max-width: 1000px) {
+    .brigadeiro-sky {
+        background-image: linear-gradient(#A1D6F3, #CAE8F8);
+        background-attachment:fixed;
+    }
+
+    .form-layout {
+        width: 40%;
+        padding: 2% 5% 10% 5%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .brigadeiro-sky {
+        background-image: linear-gradient(#A1D6F3, #CAE8F8);
+        background-attachment:fixed;
+    }
+
+    .sky {
+        background-image: linear-gradient(#A1D6F3, #CAE8F8);
+        background-attachment:fixed;
+    }
+
+    .form-layout {
+        width: 60%;
+        padding: 2% 5% 10% 5%;
+    }
+}
+
+@media only screen and (max-width: 450px) {
+    .brigadeiro-sky {
+        background-image: linear-gradient(#A1D6F3, #CAE8F8);
+        background-attachment:fixed;
+    }
+
+    .form-layout {
+        width: 80%;
+        padding: 2% 5% 10% 5%;
+    }
+}

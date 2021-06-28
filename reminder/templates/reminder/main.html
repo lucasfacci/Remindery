@@ -1,0 +1,85 @@
+{% extends 'reminder/layout.html' %}
+
+{% block body %}
+<div id="main-view" class="main-content">
+    <h2>Seus calendários</h2>
+</div>
+
+<div id="new-view" class="main-content" style="display: none;">
+    <div class="text-center">
+        <div class="form-layout text-center mx-auto border shadow bg-white rounded">
+            <p><b class="text-muted">Novo calendário</b></p>
+            <br>
+            <form id="agenda-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input autofocus type="text" id="agenda-title" class="input" name="title" placeholder="Título">
+                </div>
+                <br>
+                <div class="form-group">
+                    <textarea class="input" id="agenda-description" name="description"
+                        placeholder="Descrição (opcional)"></textarea>
+                </div>
+                <br>
+                <div class="form-group border rounded bg-light" style="padding: 5%;">
+                    <b>Cor:</b>
+                    <br>
+                    <input type="radio" class="btn-check" name="color" id="primary-outlined" autocomplete="off"
+                        value="bg-primary" checked>
+                    <label class="btn btn-primary" for="primary-outlined"></label>
+
+                    <input type="radio" class="btn-check" name="color" id="secondary-outlined" autocomplete="off"
+                        value="bg-secondary">
+                    <label class="btn btn-secondary" for="secondary-outlined"></label>
+
+                    <input type="radio" class="btn-check" name="color" id="success-outlined" autocomplete="off"
+                        value="bg-success">
+                    <label class="btn btn-success" for="success-outlined"></label>
+
+                    <input type="radio" class="btn-check" name="color" id="danger-outlined" autocomplete="off"
+                        value="bg-danger">
+                    <label class="btn btn-danger" for="danger-outlined"></label>
+
+                    <input type="radio" class="btn-check" name="color" id="dark-outlined" autocomplete="off"
+                        value="bg-dark">
+                    <label class="btn btn-dark" for="dark-outlined"></label>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary">Criar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="agenda-view" class="main-content" style="display: none;">
+    <div id="calendar-view">
+        <!-- <div class="calendar-menu row">
+            <div class="col">
+                <button id="btn-invite" class="btn btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
+                        <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                        <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="form-invite" class="col" style="display: none;">
+                <form>
+                    {% csrf_token %}
+                    <input type="text" />
+                </form>
+            </div>
+        </div> -->
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<div id="day-view" class="main-content" style="display: none;">
+    <div class="text-center">
+        <div id="reminders" class="form-layout text-center mx-auto border shadow bg-white rounded" style="height: 500px; overflow-y: auto;">
+            <p><b id="date" class="text-muted"></b></p>
+            <p><b id="weekDay" class="text-muted"></b></p>
+            <br>
+        </div>
+    </div>
+</div>
+{% endblock %}

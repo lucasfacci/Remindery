@@ -1,0 +1,70 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remindery</title>
+    <link rel="shortcut icon" href="{% static 'reminder/images/mediumCloud.svg' %}" />
+    <link href='{% static "reminder/css/bootstrap.min.css" %}' rel="stylesheet" />
+    <link href='{% static "reminder/css/styles.css" %}' rel="stylesheet" />
+</head>
+
+<body class="brigadeiro-sky">
+    <nav class="navbar navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{% static 'reminder/images/mediumCloud.svg' %}" alt="logo" width="30"
+                    class="d-inline-block align-text-top">
+                Remindery
+            </a>
+            <ul class="nav justify-content-end">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'login' %}">Entrar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="{% url 'register' %}">Criar conta</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="main-content">
+        <div class="text-center">
+            <img src="{% static 'reminder/images/mediumCloud.svg' %}" width="60px">
+            <h1 class="display-4 fw-normal">Remindery</h1>
+        </div>
+        <div class="form-layout text-center mx-auto border shadow bg-white rounded">
+            <p><b class="text-muted">Criar conta no Remindery</b></p>
+            <br>
+            <form action="{% url 'register' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input autofocus type="text" class="input" id="username" name="username" placeholder="Usuário">
+                </div>
+                <br>
+                <div class="form-group">
+                    <input type="text" class="input" id="email" name="email" placeholder="Email">
+                </div>
+                <br>
+                <div class="form-group">
+                    <input type="password" class="input" id="password" name="password" placeholder="Senha">
+                </div>
+                <br>
+                <div class="form-group">
+                    <input type="password" class="input" id="confirmation" name="confirmation"
+                        placeholder="Confirmação">
+                </div>
+                {% if message %}
+                <small class="text-muted">{{ message }}</small>
+                {% endif %}
+                <br>
+                <button type="submit" class="btn btn-primary">Registrar</button>
+            </form>
+            <br>
+            <small>Já possui uma conta? <a href="{% url 'login' %}">Entrar</a></small>
+        </div>
+    </div>
+</body>
