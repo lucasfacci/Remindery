@@ -70,26 +70,20 @@
     margin: 1%;
 }
 
+.agenda-day {
+    overflow-y: auto;
+    width: 35%;
+    padding: 2%;
+}
+
 .line-input {
     outline: 0;
     background: transparent;
     border: none;
-    border-bottom: 1px solid #000000;
-    border-radius: 0px;
-}
-
-.line-input:focus {
-    border-color: lightblue;
 }
 
 .reminder-button {
     border: none;
-    border-bottom: 1px solid #000000;
-    border-radius: 0px;
-}
-
-.reminder-button:focus {
-    border-color: lightblue;
 }
 
 @media only screen and (max-width: 1000px) {
@@ -101,6 +95,12 @@
     .form-layout {
         width: 40%;
         padding: 2% 5% 10% 5%;
+    }
+
+    .agenda-day {
+        overflow-y: auto;
+        width: 40%;
+        padding: 2%;
     }
 }
 
@@ -119,6 +119,12 @@
         width: 60%;
         padding: 2% 5% 10% 5%;
     }
+
+    .agenda-day {
+        overflow-y: auto;
+        width: 60%;
+        padding: 2%;
+    }
 }
 
 @media only screen and (max-width: 450px) {
@@ -130,5 +136,11 @@
     .form-layout {
         width: 80%;
         padding: 2% 5% 10% 5%;
+    }
+
+    .agenda-day {
+        overflow-y: auto;
+        width: 80%;
+        padding: 2%;
     }
 }

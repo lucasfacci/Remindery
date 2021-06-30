@@ -74,12 +74,12 @@
 </div>
 
 <div id="day-view" class="main-content" style="display: none;">
-    <div class="text-center">
-        <div id="reminders" class="form-layout text-center mx-auto border shadow bg-white rounded" style="height: 500px; overflow-y: auto;">
-            <p><b id="date" class="text-muted"></b></p>
+    <div id="reminders" class="agenda-day mx-auto border shadow bg-white rounded">
+        <div id="information" class="text-center">
             <p><b id="weekDay" class="text-muted"></b></p>
-            <br>
+            <p><b id="date" class="text-muted"></b></p>
         </div>
+        <ul id="content" class="list-group list-group-flush"></ul>
     </div>
 </div>
 {% endblock %}

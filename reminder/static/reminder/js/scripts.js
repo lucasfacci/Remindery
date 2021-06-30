@@ -223,8 +223,8 @@ function load_day(day, month, year, agenda_id) {
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'none';
     document.querySelector('#day-view').style.display = 'block';
-    reminders = document.querySelectorAll('#reminder')
-    inputReminders = document.querySelectorAll('#div-reminder')
+    reminders = document.querySelectorAll('#reminder');
+    inputReminders = document.querySelectorAll('#div-reminder');
 
     if (reminders.length > 0 || inputReminders.length > 0) {
         remove_reminders();
@@ -240,17 +240,38 @@ function load_day(day, month, year, agenda_id) {
 
         } else {
             for (i = 0; i < data.length; i++) {
-
-                let p = document.createElement('p');
-                p.setAttribute('id', 'reminder');
-                p.className = 'pointer';
-                p.innerHTML = `${data[i].content}`;
+                let li = document.createElement('li');
+                let div = document.createElement('div');
+                let button = document.createElement('button');
+                li.id = 'reminder';
+                li.dataset.key = `${i}`;
+                li.className = 'list-group-item d-flex justify-content-between align-items-center pointer';
+                div.innerHTML = `${data[i].content}`;
+                button.className = 'btn shadow-none';
+                button.innerHTML = 'x';
+                button.addEventListener('click', () => {
+                    fetch('/delete', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            reminder: id
+                        }),
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    })
+                    .then(() => {
+                        document.querySelector(`[data-key='${li.dataset.key}']`).remove();
+                    })
+                    .catch(error => {
+                        console.log('Error:', error);
+                    });
+                })
 
                 let id = data[i].reminder;
 
                 if (data[i].scratched == true) {
-                    p.style.textDecoration = 'line-through';
-                    p.addEventListener('click', () => {
+                    div.style.textDecoration = 'line-through';
+                    div.addEventListener('click', () => {
                         fetch(`/scratch/${id}`, {
                             method: 'PUT',
                             body: JSON.stringify({
@@ -268,7 +289,7 @@ function load_day(day, month, year, agenda_id) {
                         })
                     })
                 } else {
-                    p.addEventListener('click', () => {
+                    div.addEventListener('click', () => {
                         fetch(`/scratch/${id}`, {
                             method: 'PUT',
                             body: JSON.stringify({
@@ -287,16 +308,21 @@ function load_day(day, month, year, agenda_id) {
                     })
                 }
 
-                document.querySelector('#reminders').appendChild(p);
+                li.appendChild(div);
+                li.appendChild(button);
+                document.querySelector('#content').appendChild(li);
             }
         }
     })
     .then(() => {
-        let div = document.createElement('div');
+        let li = document.createElement('li');
+        let emptyLi = document.createElement('li');
         let input = document.createElement('input');
         let button = document.createElement('button');
-        div.id = 'div-reminder';
-        div.className = 'input-group mb-3';
+        li.id = 'reminder';
+        li.className = 'list-group-item d-flex justify-content-between align-items-center pointer';
+        emptyLi.id = 'reminder';
+        emptyLi.className = 'list-group-item d-flex justify-content-between align-items-center';
         input.type = 'text';
         input.id = 'new-reminder';
         input.className = 'form-control line-input shadow-none';
@@ -318,12 +344,11 @@ function load_day(day, month, year, agenda_id) {
                         day: day
                     }),
                     headers: {
-                        "X-CSRFToken": getCookie('csrftoken')
+                        'X-CSRFToken': getCookie('csrftoken')
                     }
                 })
                 .then(response => response.json())
-                .then(result => {
-                    console.log(result);
+                .then(() => {
                     load_day(day, month, year, agenda_id);
                 })
                 .catch(error => {
@@ -331,9 +356,11 @@ function load_day(day, month, year, agenda_id) {
                 })
             }
         })
-        div.appendChild(input);
-        div.appendChild(button);
-        document.querySelector('#reminders').appendChild(div);
+        
+        li.appendChild(input);
+        li.appendChild(button);
+        document.querySelector('#content').appendChild(li);
+        document.querySelector('#content').appendChild(emptyLi);
     })
     .catch(error => {
         console.log('Error:', error);
@@ -384,7 +411,7 @@ function create_agenda() {
                     color: color
                 }),
                 headers: {
-                    "X-CSRFToken": getCookie('csrftoken')
+                    'X-CSRFToken': getCookie('csrftoken')
                 }
             })
             .then(response => response.json())

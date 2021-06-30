@@ -229,7 +229,14 @@ def new_reminder(request):
 @login_required
 def delete_reminder(request):
     if request.method == 'POST':
-        pass
+        try:
+            data = json.loads(request.body)
+
+            reminder = data.get('reminder',)
+            Reminder.objects.get(id=reminder).delete()
+            return JsonResponse({'message': 'Reminder deleted successfully.'}, status=201)
+        except:
+            return JsonResponse({'error': 'Request error'}, status=400)
     else:
         return JsonResponse({'error': 'POST request required.'}, status=400)
 
