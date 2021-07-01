@@ -128,14 +128,16 @@ def calendar_json(request, agenda_id):
         timeZoneSP = timezone(difference)
         year = datetime.now(timeZoneSP).year
         month = datetime.now(timeZoneSP).month
+        day = datetime.now(timeZoneSP).day
 
         cal = calendar.HTMLCalendar(calendar.SUNDAY).formatmonth(year, month)
         agenda = Agenda.objects.get(id=agenda_id)
         monthCalendar = {
-            "calendar": cal,
-            "agenda": agenda.id,
-            "year": year,
-            "month": month
+            'calendar': cal,
+            'agenda': agenda.id,
+            'year': year,
+            'month': month,
+            'day': day
         }
         return JsonResponse(monthCalendar)
     else:

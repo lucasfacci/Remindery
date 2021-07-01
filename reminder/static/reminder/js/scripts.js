@@ -105,10 +105,6 @@ function load_agenda(agenda_id) {
     document.querySelector('#agenda-view').style.display = 'block';
     document.querySelector('#day-view').style.display = 'none';
 
-    // document.querySelector('#btn-invite').addEventListener('click', () => {
-    //     document.querySelector('#form-invite').style.display = 'block';
-    // })
-
     fetch(`/calendar/${agenda_id}`)
     .then(response => response.json())
     .then(cal => {
@@ -128,13 +124,26 @@ function load_agenda(agenda_id) {
             }
             if (isNaN(tdContent) == false) {
                 td.setAttribute('id', tdContent);
-                td.addEventListener('mouseover', () => {
-                    td.style.backgroundColor = '#D3D3D3';
-                })
+                
+                if (td.id == cal.day) {
+                    td.style.background = '#BBBBBB';
 
-                td.addEventListener('mouseout', () => {
-                    td.style.backgroundColor = '';
-                })
+                    td.addEventListener('mouseover', () => {
+                        td.style.backgroundColor = '#D3D3D3';
+                    })
+    
+                    td.addEventListener('mouseout', () => {
+                        td.style.backgroundColor = '#BBBBBB';
+                    })
+                } else {
+                    td.addEventListener('mouseover', () => {
+                        td.style.backgroundColor = '#D3D3D3';
+                    })
+    
+                    td.addEventListener('mouseout', () => {
+                        td.style.backgroundColor = '';
+                    })
+                }
 
                 td.addEventListener('click', () => {
                     load_day(td.id, cal.month, cal.year, agenda_id);
@@ -329,6 +338,7 @@ function load_day(day, month, year, agenda_id) {
         button.type = 'submit';
         button.className = 'btn shadow-none reminder-button';
         button.innerHTML = '+';
+        
         button.addEventListener('click', () => {
             const task = document.querySelector('#new-reminder').value;
             if (task == '') {
