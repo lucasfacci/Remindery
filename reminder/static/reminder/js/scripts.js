@@ -3,6 +3,7 @@ try {
     document.querySelector('#agendas').addEventListener('click', () => load_main());
     document.querySelector('#new').addEventListener('click', () => load_new());
     document.querySelector('#agenda-form').onsubmit = create_agenda;
+    document.querySelector('#change-date').onsubmit = change_date;
     
     load_main()
 } catch {
@@ -78,7 +79,7 @@ function load_main() {
 
 }
 
-// CREATE CALENDAR VIEW
+// NEW VIEW
 function load_new() {
     document.querySelector('#main-view').style.display = 'none';
     document.querySelector('#new-view').style.display = 'block';
@@ -99,91 +100,102 @@ function load_new() {
 }
 
 // CALENDAR VIEW
-function load_agenda(agenda_id) {
+function load_agenda(agenda_id, month, year) {
     document.querySelector('#main-view').style.display = 'none';
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'block';
     document.querySelector('#day-view').style.display = 'none';
 
-    fetch(`/calendar/${agenda_id}`)
-    .then(response => response.json())
-    .then(cal => {
-        let calendarDiv = document.querySelector('#calendar');
-        calendarDiv.innerHTML = cal.calendar;
+    if (month == undefined || year == undefined) {
+        fetch(`/calendar/${agenda_id}`)
+        .then(response => response.json())
+        .then(cal => {
+            let calendarDiv = document.querySelector('#calendar');
+            calendarDiv.innerHTML = cal.calendar;
 
-        let calendarTable = document.querySelector('.month');
-        calendarTable.className += ' table table-bordered';
-        calendarTable.style.tableLayout = 'fixed';
+            let calendarTable = document.querySelector('.month');
+            calendarTable.className += ' table table-bordered';
+            calendarTable.style.tableLayout = 'fixed';
 
-        let calendarTds = document.querySelectorAll('td');
-        calendarTds.forEach(td => {
-            let tdContent = td.innerHTML;
-            tdContent = parseInt(td.innerHTML);
-            if (tdContent < 10) {
-                td.innerHTML = '0' + String(tdContent);
-            }
-            if (isNaN(tdContent) == false) {
-                td.setAttribute('id', tdContent);
-                
-                if (td.id == cal.day) {
-                    td.style.background = '#BBBBBB';
+            let calendarTds = document.querySelectorAll('td');
+            calendarTds.forEach(td => {
+                let tdContent = td.innerHTML;
+                tdContent = parseInt(td.innerHTML);
+                if (tdContent < 10) {
+                    td.innerHTML = '0' + String(tdContent);
+                }
+                if (isNaN(tdContent) == false) {
+                    td.setAttribute('id', tdContent);
+                    
+                    if (td.id == cal.day) {
+                        td.style.background = '#BBBBBB';
 
-                    td.addEventListener('mouseover', () => {
-                        td.style.backgroundColor = '#D3D3D3';
-                    })
-    
-                    td.addEventListener('mouseout', () => {
-                        td.style.backgroundColor = '#BBBBBB';
-                    })
-                } else {
-                    td.addEventListener('mouseover', () => {
-                        td.style.backgroundColor = '#D3D3D3';
-                    })
-    
-                    td.addEventListener('mouseout', () => {
-                        td.style.backgroundColor = '';
+                        td.addEventListener('mouseover', () => {
+                            td.style.backgroundColor = '#D3D3D3';
+                        })
+        
+                        td.addEventListener('mouseout', () => {
+                            td.style.backgroundColor = '#BBBBBB';
+                        })
+                    } else {
+                        td.addEventListener('mouseover', () => {
+                            td.style.backgroundColor = '#D3D3D3';
+                        })
+        
+                        td.addEventListener('mouseout', () => {
+                            td.style.backgroundColor = '';
+                        })
+                    }
+
+                    td.addEventListener('click', () => {
+                        load_day(td.id, cal.month, cal.year, agenda_id);
                     })
                 }
+                td.style.height = '90px';
+                td.style.fontWeight = 'bold';
+            })
 
-                td.addEventListener('click', () => {
-                    load_day(td.id, cal.month, cal.year, agenda_id);
-                })
+            let calendarThs = document.querySelectorAll('th');
+            let screenWidth = window.screen.width;
+            let monthYear = document.querySelector('#month-year');
+            monthYear.classList.add('text-dark');
+            let dateSubmit = document.querySelector('input[name="date-submit"]');
+            dateSubmit.id = `${agenda_id}`;
+
+            if (cal.month == '1') {
+                monthYear.innerHTML = 'Janeiro ' + cal.year;
+            } else if (cal.month == '2') {
+                monthYear.innerHTML = 'Fevereiro ' + cal.year;
+            } else if (cal.month == '3') {
+                monthYear.innerHTML = 'Março ' + cal.year;
+            } else if (cal.month == '4') {
+                monthYear.innerHTML = 'Abril ' + cal.year;
+            } else if (cal.month == '5') {
+                monthYear.innerHTML = 'Maio ' + cal.year;
+            } else if (cal.month == '6') {
+                monthYear.innerHTML = 'Junho ' + cal.year;
+            } else if (cal.month == '7') {
+                monthYear.innerHTML = 'Julho ' + cal.year;
+            } else if (cal.month == '8') {
+                monthYear.innerHTML = 'Agosto ' + cal.year;
+            } else if (cal.month == '9') {
+                monthYear.innerHTML = 'Setembro ' + cal.year;
+            } else if (cal.month == '10') {
+                monthYear.innerHTML = 'Outubro ' + cal.year;
+            } else if (cal.month == '11') {
+                monthYear.innerHTML = 'Novembro ' + cal.year;
+            } else if (cal.month == '12') {
+                monthYear.innerHTML = 'Dezembro ' + cal.year;
             }
-            td.style.height = '90px';
-            td.style.fontWeight = 'bold';
-        })
 
-        let calendarThs = document.querySelectorAll('th');
-        let screenWidth = window.screen.width
-        calendarThs.forEach(th => {
-            if (th.className == 'month') {
-                thContent = th.innerHTML.split(' ');
-                if (thContent[0] == 'January') {
-                    th.innerHTML = 'Janeiro ' + thContent[1];
-                } else if (thContent[0] == 'February') {
-                    th.innerHTML = 'Fevereiro ' + thContent[1];
-                } else if (thContent[0] == 'March') {
-                    th.innerHTML = 'Março ' + thContent[1];
-                } else if (thContent[0] == 'April') {
-                    th.innerHTML = 'Abril ' + thContent[1];
-                } else if (thContent[0] == 'May') {
-                    th.innerHTML = 'Maio ' + thContent[1];
-                } else if (thContent[0] == 'June') {
-                    th.innerHTML = 'Junho ' + thContent[1];
-                } else if (thContent[0] == 'July') {
-                    th.innerHTML = 'Julho ' + thContent[1];
-                } else if (thContent[0] == 'August') {
-                    th.innerHTML = 'Agosto ' + thContent[1];
-                } else if (thContent[0] == 'September') {
-                    th.innerHTML = 'Setembro ' + thContent[1];
-                } else if (thContent[0] == 'October') {
-                    th.innerHTML = 'Outubro ' + thContent[1];
-                } else if (thContent[0] == 'November') {
-                    th.innerHTML = 'Novembro ' + thContent[1];
-                } else if (thContent[0] == 'December') {
-                    th.innerHTML = 'Dezembro ' + thContent[1];
-                }
-            } else {
+            let thisYear = document.querySelector('#this-year');
+            thisYear.value = cal.year;
+            thisYear.innerHTML = cal.year;
+            let nextYear = document.querySelector('#next-year');
+            nextYear.value = cal.year + 1;
+            nextYear.innerHTML = cal.year + 1;
+
+            calendarThs.forEach(th => {
                 if (screenWidth > 600) {
                     if (th.innerHTML == 'Sun') {
                         th.innerHTML = 'Domingo';
@@ -217,13 +229,132 @@ function load_agenda(agenda_id) {
                         th.innerHTML = 'Sáb';
                     }
                 }
-            }
-            th.classList.add('text-center');
+                th.classList.add('text-center');
+            })
         })
-    })
-    .catch(error => {
-        console.log('Error:', error);
-    })
+        .catch(error => {
+            console.log('Error:', error);
+        })
+    } else {
+        fetch(`/calendar/${agenda_id}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                month: month,
+                year: year
+            }),
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(cal => {
+            let calendarDiv = document.querySelector('#calendar');
+            calendarDiv.innerHTML = cal.calendar;
+
+            let calendarTable = document.querySelector('.month');
+            calendarTable.className += ' table table-bordered';
+            calendarTable.style.tableLayout = 'fixed';
+
+            let calendarTds = document.querySelectorAll('td');
+            calendarTds.forEach(td => {
+                let tdContent = td.innerHTML;
+                tdContent = parseInt(td.innerHTML);
+                if (tdContent < 10) {
+                    td.innerHTML = '0' + String(tdContent);
+                }
+                if (isNaN(tdContent) == false) {
+                    td.setAttribute('id', tdContent);
+
+                    td.addEventListener('mouseover', () => {
+                        td.style.backgroundColor = '#D3D3D3';
+                    })
+    
+                    td.addEventListener('mouseout', () => {
+                        td.style.backgroundColor = '';
+                    })
+
+                    td.addEventListener('click', () => {
+                        load_day(td.id, cal.month, cal.year, agenda_id);
+                    })
+                }
+                td.style.height = '90px';
+                td.style.fontWeight = 'bold';
+            })
+
+            let calendarThs = document.querySelectorAll('th');
+            let screenWidth = window.screen.width;
+            let monthYear = document.querySelector('#month-year');
+            monthYear.classList.add('text-dark');
+            let dateSubmit = document.querySelector('input[name="date-submit"]');
+            dateSubmit.id = `${agenda_id}`;
+
+            if (cal.month == '1') {
+                monthYear.innerHTML = 'Janeiro ' + cal.year;
+            } else if (cal.month == '2') {
+                monthYear.innerHTML = 'Fevereiro ' + cal.year;
+            } else if (cal.month == '3') {
+                monthYear.innerHTML = 'Março ' + cal.year;
+            } else if (cal.month == '4') {
+                monthYear.innerHTML = 'Abril ' + cal.year;
+            } else if (cal.month == '5') {
+                monthYear.innerHTML = 'Maio ' + cal.year;
+            } else if (cal.month == '6') {
+                monthYear.innerHTML = 'Junho ' + cal.year;
+            } else if (cal.month == '7') {
+                monthYear.innerHTML = 'Julho ' + cal.year;
+            } else if (cal.month == '8') {
+                monthYear.innerHTML = 'Agosto ' + cal.year;
+            } else if (cal.month == '9') {
+                monthYear.innerHTML = 'Setembro ' + cal.year;
+            } else if (cal.month == '10') {
+                monthYear.innerHTML = 'Outubro ' + cal.year;
+            } else if (cal.month == '11') {
+                monthYear.innerHTML = 'Novembro ' + cal.year;
+            } else if (cal.month == '12') {
+                monthYear.innerHTML = 'Dezembro ' + cal.year;
+            }
+
+            calendarThs.forEach(th => {
+                if (screenWidth > 600) {
+                    if (th.innerHTML == 'Sun') {
+                        th.innerHTML = 'Domingo';
+                    } else if (th.innerHTML == 'Mon') {
+                        th.innerHTML = 'Segunda';
+                    } else if (th.innerHTML == 'Tue') {
+                        th.innerHTML = 'Terça';
+                    } else if (th.innerHTML == 'Wed') {
+                        th.innerHTML = 'Quarta';
+                    } else if (th.innerHTML == 'Thu') {
+                        th.innerHTML = 'Quinta';
+                    } else if (th.innerHTML == 'Fri') {
+                        th.innerHTML = 'Sexta';
+                    } else if (th.innerHTML == 'Sat') {
+                        th.innerHTML = 'Sábado';
+                    }
+                } else {
+                    if (th.innerHTML == 'Sun') {
+                        th.innerHTML = 'Dom';
+                    } else if (th.innerHTML == 'Mon') {
+                        th.innerHTML = 'Seg';
+                    } else if (th.innerHTML == 'Tue') {
+                        th.innerHTML = 'Ter';
+                    } else if (th.innerHTML == 'Wed') {
+                        th.innerHTML = 'Qua';
+                    } else if (th.innerHTML == 'Thu') {
+                        th.innerHTML = 'Qui';
+                    } else if (th.innerHTML == 'Fri') {
+                        th.innerHTML = 'Sex';
+                    } else if (th.innerHTML == 'Sat') {
+                        th.innerHTML = 'Sáb';
+                    }
+                }
+                th.classList.add('text-center');
+            })
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        })
+    }
 }
 
 // AGENDA VIEW
@@ -475,6 +606,16 @@ function add_agendas(agendas) {
         greatGrandParentDiv.appendChild(grandParentDiv);
         mainView.appendChild(greatGrandParentDiv);
     });
+}
+
+// CHANGE CALENDAR DATE
+function change_date() {
+    let calendar = document.querySelector('input[name="date-submit"]');
+    const month = document.querySelector('select[name="month"]').value;
+    const year = document.querySelector('select[name="year"]').value;
+    load_agenda(calendar.id, month, year);
+    
+    return false;
 }
 
 // HIDE CALENDARS

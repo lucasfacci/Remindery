@@ -132,6 +132,9 @@ def calendar_json(request, agenda_id):
 
         cal = calendar.HTMLCalendar(calendar.SUNDAY).formatmonth(year, month)
         agenda = Agenda.objects.get(id=agenda_id)
+        beg = cal.find('<tr><th colspan')
+        end = cal.find('<tr><th class')
+        cal = cal[:beg] + cal[end:]
         monthCalendar = {
             'calendar': cal,
             'agenda': agenda.id,
@@ -140,8 +143,29 @@ def calendar_json(request, agenda_id):
             'day': day
         }
         return JsonResponse(monthCalendar)
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            month = data.get('month',)
+            year = data.get('year',)
+            
+            cal = calendar.HTMLCalendar(calendar.SUNDAY).formatmonth(int(year), int(month))
+            agenda = Agenda.objects.get(id=agenda_id)
+            beg = cal.find('<tr><th colspan')
+            end = cal.find('<tr><th class')
+            cal = cal[:beg] + cal[end:]
+            monthCalendar = {
+                'calendar': cal,
+                'agenda': agenda.id,
+                'year': year,
+                'month': month
+            }
+            return JsonResponse(monthCalendar)
+        except:
+            return JsonResponse({'error': 'Request error'}, status=400)
     else:
-        return JsonResponse({'error': 'GET request required.'}, status=400)
+        return JsonResponse({'error': 'GET or POST request required.'}, status=400)
 
 
 @login_required
