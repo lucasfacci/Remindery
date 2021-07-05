@@ -363,6 +363,12 @@ function load_day(day, month, year, agenda_id) {
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'none';
     document.querySelector('#day-view').style.display = 'block';
+    document.querySelector('#return').addEventListener('click', () => {
+        document.querySelector('#main-view').style.display = 'none';
+        document.querySelector('#new-view').style.display = 'none';
+        document.querySelector('#agenda-view').style.display = 'block';
+        document.querySelector('#day-view').style.display = 'none';
+    })
     reminders = document.querySelectorAll('#reminder');
     inputReminders = document.querySelectorAll('#div-reminder');
 
