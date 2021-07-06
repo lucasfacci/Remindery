@@ -265,13 +265,47 @@ function load_agenda(agenda_id, month, year) {
                 if (isNaN(tdContent) == false) {
                     td.setAttribute('id', tdContent);
 
-                    td.addEventListener('mouseover', () => {
-                        td.style.backgroundColor = '#D3D3D3';
-                    })
-    
-                    td.addEventListener('mouseout', () => {
-                        td.style.backgroundColor = '';
-                    })
+                    let timezoneSP = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
+
+                    if (cal.year == timezoneSP.substring(6, 10)){
+                        if (cal.month == timezoneSP.substring(4, 5)) {
+                            if (td.id == timezoneSP.substring(1,2)) {
+                                td.style.background = '#BBBBBB';
+
+                                td.addEventListener('mouseover', () => {
+                                    td.style.backgroundColor = '#D3D3D3';
+                                })
+                
+                                td.addEventListener('mouseout', () => {
+                                    td.style.backgroundColor = '#BBBBBB';
+                                })
+                            } else {
+                                td.addEventListener('mouseover', () => {
+                                    td.style.backgroundColor = '#D3D3D3';
+                                })
+                
+                                td.addEventListener('mouseout', () => {
+                                    td.style.backgroundColor = '';
+                                })
+                            }
+                        } else {
+                            td.addEventListener('mouseover', () => {
+                                td.style.backgroundColor = '#D3D3D3';
+                            })
+            
+                            td.addEventListener('mouseout', () => {
+                                td.style.backgroundColor = '';
+                            })
+                        }
+                    } else {
+                        td.addEventListener('mouseover', () => {
+                            td.style.backgroundColor = '#D3D3D3';
+                        })
+        
+                        td.addEventListener('mouseout', () => {
+                            td.style.backgroundColor = '';
+                        })
+                    }
 
                     td.addEventListener('click', () => {
                         load_day(td.id, cal.month, cal.year, agenda_id);
@@ -363,12 +397,17 @@ function load_day(day, month, year, agenda_id) {
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'none';
     document.querySelector('#day-view').style.display = 'block';
+
     document.querySelector('#return').addEventListener('click', () => {
         document.querySelector('#main-view').style.display = 'none';
         document.querySelector('#new-view').style.display = 'none';
         document.querySelector('#agenda-view').style.display = 'block';
         document.querySelector('#day-view').style.display = 'none';
+
+        let navbar = document.querySelector('#navbarToggleExternalContent');
+        navbar.className = 'collapse';
     })
+
     reminders = document.querySelectorAll('#reminder');
     inputReminders = document.querySelectorAll('#div-reminder');
 
