@@ -11,6 +11,11 @@ class Agenda(models.Model):
     color = models.CharField(max_length=25, null=False)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
 
+class Partner(models.Model):
+    id = models.AutoField(primary_key=True)
+    agenda = models.ForeignKey(Agenda, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
 class Reminder(models.Model):
     id = models.AutoField(primary_key=True)
     content = models.CharField(max_length=255, null=False)
