@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.urls import reverse
 import json
 
-from .models import User, Agenda, Reminder
+from .models import User, Agenda, Partner, Reminder
 
 def index(request):
     if request.method == 'GET':
@@ -72,6 +72,17 @@ def register(request):
     else:
         return JsonResponse({'error': 'GET or POST request required.'}, status=400)
 
+    
+@login_required
+def actual_user(request):
+    if request.method == 'GET':
+        actualUser = {
+            'user': str(request.user)
+        }
+        return JsonResponse(actualUser, safe=False)
+    else:
+        return JsonResponse({'error': 'GET request required.'}, status=400)
+
 
 @login_required
 def main(request):
@@ -85,6 +96,7 @@ def main(request):
 def agendas(request):
     if request.method == 'GET':
         data = Agenda.objects.filter(creator=request.user)
+        partner = Partner.objects.filter(user=request.user)
         agendas = []
         for i in data:
             agenda = {
@@ -93,6 +105,15 @@ def agendas(request):
                 'description': i.description,
                 'color': i.color,
                 'creator': str(i.creator)
+            }
+            agendas.append(agenda)
+        for i in range(len(partner)):
+            agenda = {
+                'id': partner[i].agenda.id,
+                'title': partner[i].agenda.title,
+                'description': partner[i].agenda.description,
+                'color': partner[i].agenda.color,
+                'creator': str(partner[i].agenda.creator)
             }
             agendas.append(agenda)
         return JsonResponse(agendas, safe=False)
@@ -122,6 +143,22 @@ def new(request):
 
 
 @login_required
+def delete_calendar(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            calendar_id = data.get('calendar',)
+            Agenda.objects.get(id=calendar_id, creator=request.user).delete()
+
+            return JsonResponse({'message': 'Calendar deleted successfully.'}, status=201)
+        except:
+            return JsonResponse({'error': 'Request error'}, status=400)
+    else:
+        return JsonResponse({'error': 'POST request required.'}, status=400)
+
+
+@login_required
 def calendar_json(request, agenda_id):
     if request.method == 'GET':
         difference = timedelta(hours = -3)
@@ -138,6 +175,7 @@ def calendar_json(request, agenda_id):
         monthCalendar = {
             'calendar': cal,
             'agenda': agenda.id,
+            'color': agenda.color,
             'year': year,
             'month': month,
             'day': day
@@ -173,7 +211,7 @@ def calendar_day(request, day, month, year, agenda_id):
     if request.method == 'GET':
         day = date(year, month, day)
         
-        reminders = Reminder.objects.filter(date=day, creator=request.user, agenda=agenda_id)
+        reminders = Reminder.objects.filter(date=day, agenda=agenda_id)
         remindersJson = []
 
         if len(reminders) > 0:
@@ -260,7 +298,37 @@ def delete_reminder(request):
 
             reminder = data.get('reminder',)
             Reminder.objects.get(id=reminder).delete()
+
             return JsonResponse({'message': 'Reminder deleted successfully.'}, status=201)
+        except:
+            return JsonResponse({'error': 'Request error'}, status=400)
+    else:
+        return JsonResponse({'error': 'POST request required.'}, status=400)
+
+
+@login_required
+def add_user(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            calendar = data.get('calendar',)
+            username = data.get('username',)
+
+            try:
+                agenda = Agenda.objects.get(id=calendar, creator=request.user)
+                user = User.objects.get(username=username)
+                Partner.objects.get(agenda=agenda, user=user)
+                return JsonResponse({'message': 'This user is already a member of this calendar.'}, status=201)
+            except:
+                try:
+                    agenda = Agenda.objects.get(id=calendar, creator=request.user)
+                    user = User.objects.get(username=username)
+                    Partner(agenda=agenda, user=user).save()
+                except:
+                    return JsonResponse({'error': 'Request error'}, status=400)
+
+            return JsonResponse({'message': 'Partner added successfully.'}, status=201)
         except:
             return JsonResponse({'error': 'Request error'}, status=400)
     else:

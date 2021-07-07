@@ -1,8 +1,25 @@
 {% extends 'reminder/layout.html' %}
+{% load static %}
 
 {% block body %}
 <div id="main-view" class="main-content">
     <h2>Seus calendários</h2>
+    <div id="yours"></div>
+    <h2 id="shared-title"></h2>
+    <div id="shared"></div>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="{% static 'reminder/images/mediumCloud.svg' %}" width="30" class="rounded me-2" alt="Remindery">
+                <strong class="me-auto">Remindery</strong>
+                <small>Agora</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                O caléndario foi apagado com sucesso.
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="new-view" class="main-content" style="display: none;">
@@ -80,7 +97,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button id="add-user-btn" type="button" class="btn btn-primary">Adicionar</button>
+                                <button id="add-user-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Adicionar</button>
                             </div>
                         </div>
                     </div>
@@ -109,7 +126,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button id="delete-calendar-btn" type="button" class="btn btn-danger">Excluir</button>
+                                <button id="delete-calendar-btn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Excluir</button>
                             </div>
                         </div>
                     </div>

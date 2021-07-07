@@ -16,66 +16,99 @@ function load_main() {
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'none';
     document.querySelector('#day-view').style.display = 'none';
+    
+    remove_agendas();
 
-    fetch('/agendas')
+    fetch('/actual_user')
     .then(response => response.json())
-    .then(agendas => {
-        
-        if (agendas.length == 0) {
-            let emptyCard = document.querySelector('#empty-card');
-            let cards = document.querySelectorAll('#card');
+    .then(data => {
+        let anyone = true;
 
-            if (cards != null) {
-                remove_agendas();
+        fetch('/agendas')
+        .then(response => response.json())
+        .then(agendas => {
+
+            agendas.forEach(agenda => {
+                if (agenda.creator == data.user) {
+                    anyone = false;
+                }
+            })
+
+            if (agendas.length == 0 || anyone == true) {
+                let emptyCard = document.querySelector('#empty-card');
+                let cards = document.querySelectorAll('#card');
+
+                if (cards != null) {
+                    remove_agendas();
+                }
+
+                if (emptyCard == null || anyone == true) {
+                    let greatGrandParentDiv = document.createElement('div');
+                    let grandParentDiv = document.createElement('div');
+                    let fatherDiv = document.createElement('div');
+                    let childDiv = document.createElement('div');
+                    let mainView = document.querySelector('#yours');
+
+                    greatGrandParentDiv.setAttribute('id', 'empty-card');
+
+                    greatGrandParentDiv.className = 'row row-cols-1 row-cols-md-4 g-4';
+                    grandParentDiv.className = 'col';
+                    fatherDiv.className = 'card text-white mb-3 empty-card pointer';
+                    childDiv.className = 'card-body mx-auto';
+
+                    childDiv.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-plus-lg" viewBox="0 0 16 16" style="color: grey;">
+                            <path
+                                d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
+                        </svg>
+                    `;
+
+                    fatherDiv.addEventListener('click', () => {
+                        load_new();
+                    });
+
+                    fatherDiv.appendChild(childDiv);
+                    grandParentDiv.appendChild(fatherDiv);
+                    greatGrandParentDiv.appendChild(grandParentDiv);
+                    mainView.appendChild(greatGrandParentDiv);
+                }
+
+                if (agendas.length > 0 && anyone == true) {
+                    let emptyCard = document.querySelectorAll('#empty-card');
+
+                    console.log(emptyCard.length)
+                    if (emptyCard.length > 1) {
+                        for (i = 1; i < emptyCard.length; i++) {
+                            emptyCard[i].remove();
+                        }
+                    } else if (cards != null) {
+                        remove_agendas();
+                    }
+
+                    add_agendas(agendas);
+                }
+
+            } else if (agendas.length > 0) {
+                let emptyCard = document.querySelector('#empty-card');
+                let cards = document.querySelectorAll('#card');
+                
+                if (emptyCard != null) {
+                    emptyCard.remove();
+                } else if (cards != null) {
+                    remove_agendas();
+                }
+
+                add_agendas(agendas);
             }
-
-            if (emptyCard == null) {
-                let greatGrandParentDiv = document.createElement('div');
-                let grandParentDiv = document.createElement('div');
-                let fatherDiv = document.createElement('div');
-                let childDiv = document.createElement('div');
-                let mainView = document.querySelector('#main-view');
-
-                greatGrandParentDiv.setAttribute('id', 'empty-card');
-
-                greatGrandParentDiv.className = 'row row-cols-1 row-cols-md-4 g-4';
-                grandParentDiv.className = 'col';
-                fatherDiv.className = 'card text-white mb-3 empty-card pointer';
-                childDiv.className = 'card-body mx-auto';
-
-                childDiv.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-plus-lg" viewBox="0 0 16 16" style="color: grey;">
-                        <path
-                            d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
-                    </svg>
-                `;
-
-                fatherDiv.addEventListener('click', () => {
-                    load_new();
-                });
-
-                fatherDiv.appendChild(childDiv);
-                grandParentDiv.appendChild(fatherDiv);
-                greatGrandParentDiv.appendChild(grandParentDiv);
-                mainView.appendChild(greatGrandParentDiv);
-            }
-        } else if (agendas.length > 0) {
-            let emptyCard = document.querySelector('#empty-card');
-            let cards = document.querySelectorAll('#card');
-            
-            if (emptyCard != null) {
-                emptyCard.remove();
-            } else if (cards != null) {
-                remove_agendas();
-            }
-
-            add_agendas(agendas);
-        }
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
     })
     .catch(error => {
         console.log('Error:', error);
-    });
+    })
 
 }
 
@@ -106,6 +139,25 @@ function load_agenda(agenda_id, month, year) {
     document.querySelector('#agenda-view').style.display = 'block';
     document.querySelector('#day-view').style.display = 'none';
 
+    let addUserBtn = document.querySelector('#add-user-btn'),
+        addUserBtnClone = addUserBtn.cloneNode(true);
+
+    addUserBtn.parentNode.replaceChild(addUserBtnClone, addUserBtn);
+
+    addUserBtnClone.addEventListener('click', () => {
+        const username = document.querySelector('#recipient-name').value;
+        add_user(agenda_id, username);
+    })
+
+    let deleteCalendarBtn = document.querySelector('#delete-calendar-btn'),
+        deleteCalendarBtnClone = deleteCalendarBtn.cloneNode(true);
+    
+    deleteCalendarBtn.parentNode.replaceChild(deleteCalendarBtnClone, deleteCalendarBtn);
+
+    deleteCalendarBtnClone.addEventListener('click', () => {
+        delete_calendar(agenda_id);
+    })
+
     if (month == undefined || year == undefined) {
         fetch(`/calendar/${agenda_id}`)
         .then(response => response.json())
@@ -121,9 +173,11 @@ function load_agenda(agenda_id, month, year) {
             calendarTds.forEach(td => {
                 let tdContent = td.innerHTML;
                 tdContent = parseInt(td.innerHTML);
+
                 if (tdContent < 10) {
                     td.innerHTML = '0' + String(tdContent);
                 }
+
                 if (isNaN(tdContent) == false) {
                     td.setAttribute('id', tdContent);
                     
@@ -149,6 +203,27 @@ function load_agenda(agenda_id, month, year) {
 
                     td.addEventListener('click', () => {
                         load_day(td.id, cal.month, cal.year, agenda_id);
+                    })
+
+                    fetch(`/day/${tdContent}/${cal.month}/${cal.year}/${cal.agenda}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data[0].content != undefined) {
+                            let counter = 0
+
+                            while (counter < data.length) {
+                                counter++;
+                            }
+                            
+                            let span = document.createElement('span');
+                            span.className = `badge ${cal.color}`;
+                            span.innerHTML = `${counter}`;
+                            span.style.float = 'right';
+                            td.appendChild(span);
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Error:', error);
                     })
                 }
                 td.style.height = '90px';
@@ -283,7 +358,7 @@ function load_agenda(agenda_id, month, year) {
                                 td.addEventListener('mouseover', () => {
                                     td.style.backgroundColor = '#D3D3D3';
                                 })
-                
+
                                 td.addEventListener('mouseout', () => {
                                     td.style.backgroundColor = '';
                                 })
@@ -557,7 +632,7 @@ function load_day(day, month, year, agenda_id) {
 function create_agenda() {
     const title = document.querySelector('#agenda-title').value;
     const description = document.querySelector('#agenda-description').value;
-    const colorInput = document.querySelector('input[name="color"]')
+    const colorInput = document.querySelector('input[name="color"]');
     let color = '';
 
     try {
@@ -615,42 +690,129 @@ function create_agenda() {
 
 // LOAD CALENDARS
 function add_agendas(agendas) {
-    let greatGrandParentDiv = document.createElement('div');
-    let mainView = document.querySelector('#main-view');
+    fetch('/actual_user')
+    .then(response => response.json())
+    .then(data => {
+        agendas.forEach(agenda => {
+            if (data.user != agenda.creator) {
+                document.querySelector('#shared-title').innerHTML = 'Calendários compartilhados';
+                let greatGrandParentDiv = document.createElement('div');
+                greatGrandParentDiv.setAttribute('id', 'card');
+                greatGrandParentDiv.className = 'row row-cols-1 row-cols-md-4 g-4';
 
-    greatGrandParentDiv.setAttribute('id', 'card');
+                let mainView = document.querySelector('#shared');
+                let grandParentDiv = document.createElement('div');
+                let fatherDiv = document.createElement('div');
+                let childDiv = document.createElement('div');
+                let title = document.createElement('h5');
+                let description = document.createElement('p');
+        
+                grandParentDiv.className = 'col';
+                fatherDiv.className = `card text-white ${agenda.color} mb-3 pointer`;
+                childDiv.className = 'card-body';
+                title.className = 'card-title';
+                description.className = 'card-text';
+        
+                title.innerHTML = agenda.title;
+                description.innerHTML = agenda.description;
+        
+                fatherDiv.setAttribute('id', agenda.id);
+        
+                fatherDiv.addEventListener('click', () => {
+                    load_agenda(agenda.id);
+                });
+        
+                childDiv.appendChild(title);
+                childDiv.appendChild(description);
+                fatherDiv.appendChild(childDiv);
+                grandParentDiv.appendChild(fatherDiv);
+                greatGrandParentDiv.appendChild(grandParentDiv);
+                mainView.appendChild(greatGrandParentDiv);
+            } else {
+                let greatGrandParentDiv = document.createElement('div');
+                greatGrandParentDiv.setAttribute('id', 'card');
+                greatGrandParentDiv.className = 'row row-cols-1 row-cols-md-4 g-4';
 
-    greatGrandParentDiv.className = 'row row-cols-1 row-cols-md-4 g-4';
-
-    agendas.forEach(agenda => {
-        let grandParentDiv = document.createElement('div');
-        let fatherDiv = document.createElement('div');
-        let childDiv = document.createElement('div');
-        let title = document.createElement('h5');
-        let description = document.createElement('p');
-
-        grandParentDiv.className = 'col';
-        fatherDiv.className = `card text-white ${agenda.color} mb-3 pointer`;
-        childDiv.className = 'card-body';
-        title.className = 'card-title';
-        description.className = 'card-text';
-
-        title.innerHTML = agenda.title;
-        description.innerHTML = agenda.description;
-
-        fatherDiv.setAttribute('id', agenda.id);
-
-        fatherDiv.addEventListener('click', () => {
-            load_agenda(agenda.id);
+                let mainView = document.querySelector('#yours');
+                let grandParentDiv = document.createElement('div');
+                let fatherDiv = document.createElement('div');
+                let childDiv = document.createElement('div');
+                let title = document.createElement('h5');
+                let description = document.createElement('p');
+        
+                grandParentDiv.className = 'col';
+                fatherDiv.className = `card text-white ${agenda.color} mb-3 pointer`;
+                childDiv.className = 'card-body';
+                title.className = 'card-title';
+                description.className = 'card-text';
+        
+                title.innerHTML = agenda.title;
+                description.innerHTML = agenda.description;
+        
+                fatherDiv.setAttribute('id', agenda.id);
+        
+                fatherDiv.addEventListener('click', () => {
+                    load_agenda(agenda.id);
+                });
+        
+                childDiv.appendChild(title);
+                childDiv.appendChild(description);
+                fatherDiv.appendChild(childDiv);
+                grandParentDiv.appendChild(fatherDiv);
+                greatGrandParentDiv.appendChild(grandParentDiv);
+                mainView.appendChild(greatGrandParentDiv);
+            }
         });
+    })
+    .catch(error => {
+        console.log('Error:', error);
+    });    
+}
 
-        childDiv.appendChild(title);
-        childDiv.appendChild(description);
-        fatherDiv.appendChild(childDiv);
-        grandParentDiv.appendChild(fatherDiv);
-        greatGrandParentDiv.appendChild(grandParentDiv);
-        mainView.appendChild(greatGrandParentDiv);
+// DELETE CALENDAR
+function delete_calendar(id) {
+    fetch('/delete-calendar', {
+        method: 'POST',
+        body: JSON.stringify({
+            calendar: id
+        }),
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(() => {
+        load_main();
+    })
+    .then(() => {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show());
+    })
+    .catch(error => {
+        console.log('Error:', error);
     });
+    return false;
+}
+
+// ADD USER TO CALENDAR
+function add_user(calendar_id, username) {
+    fetch('/add_user', {
+        method: 'POST',
+        body: JSON.stringify({
+            calendar: calendar_id,
+            username: username
+        }),
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log(result);
+    });
+    return false;
 }
 
 // CHANGE CALENDAR DATE
