@@ -77,7 +77,6 @@ function load_main() {
                 if (agendas.length > 0 && anyone == true) {
                     let emptyCard = document.querySelectorAll('#empty-card');
 
-                    console.log(emptyCard.length)
                     if (emptyCard.length > 1) {
                         for (i = 1; i < emptyCard.length; i++) {
                             emptyCard[i].remove();
