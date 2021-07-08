@@ -10,6 +10,7 @@ urlpatterns = [
     path('actual_user', views.actual_user, name='actual_user'),
     path('home', views.main, name='main'),
     path('agendas', views.agendas, name='agendas'),
+    path('partner_calendars', views.partner_calendars, name='partner_calendars'),
     path('new', views.new, name='new'),
     path('delete-calendar', views.delete_calendar, name='delete-calendar'),
     path('calendar/<int:agenda_id>', views.calendar_json, name='calendar'),

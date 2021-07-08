@@ -96,7 +96,6 @@ def main(request):
 def agendas(request):
     if request.method == 'GET':
         data = Agenda.objects.filter(creator=request.user)
-        partner = Partner.objects.filter(user=request.user)
         agendas = []
         for i in data:
             agenda = {
@@ -107,16 +106,26 @@ def agendas(request):
                 'creator': str(i.creator)
             }
             agendas.append(agenda)
+        return JsonResponse(agendas, safe=False)
+    else:
+        return JsonResponse({'error': 'GET request required.'}, status=400)
+
+
+@login_required
+def partner_calendars(request):
+    if request.method == 'GET':
+        partner = Partner.objects.filter(user=request.user)
+        calendars = []
         for i in range(len(partner)):
-            agenda = {
+            calendar = {
                 'id': partner[i].agenda.id,
                 'title': partner[i].agenda.title,
                 'description': partner[i].agenda.description,
                 'color': partner[i].agenda.color,
                 'creator': str(partner[i].agenda.creator)
             }
-            agendas.append(agenda)
-        return JsonResponse(agendas, safe=False)
+            calendars.append(calendar)
+        return JsonResponse(calendars, safe=False)
     else:
         return JsonResponse({'error': 'GET request required.'}, status=400)
 
@@ -314,6 +323,9 @@ def add_user(request):
 
             calendar = data.get('calendar',)
             username = data.get('username',)
+
+            if (username == str(request.user)):
+                return JsonResponse({'message': "You're already the owner of this calendar."}, status=201)
 
             try:
                 agenda = Agenda.objects.get(id=calendar, creator=request.user)
