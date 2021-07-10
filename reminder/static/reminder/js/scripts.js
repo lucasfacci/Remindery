@@ -21,13 +21,14 @@ function load_main() {
     .then(response => response.json())
     .then(agendas => {
 
+        let cards = document.querySelectorAll('#card');
+
+        if (cards != null) {
+            remove_agendas();
+        }
+
         if (agendas.length == 0) {
             let emptyCard = document.querySelector('#empty-card');
-            let cards = document.querySelectorAll('#card');
-
-            if (cards != null) {
-                remove_agendas();
-            }
 
             if (emptyCard == null) {
                 let greatGrandParentDiv = document.createElement('div');
@@ -73,13 +74,14 @@ function load_main() {
 
             add_agendas(agendas);
         }
-    })
-    .then(() => {
+
         fetch('/partner_calendars')
         .then(response => response.json())
         .then(calendars => {
             if (calendars.length > 0) {
                 add_partner_calendars(calendars);
+            } else {
+                document.querySelector('#shared-title').innerHTML = '';
             }
         })
         .catch(error => {
@@ -97,7 +99,7 @@ function load_new() {
     document.querySelector('#new-view').style.display = 'block';
     document.querySelector('#agenda-view').style.display = 'none';
     document.querySelector('#day-view').style.display = 'none';
-    let title = document.querySelector('#agenda-title')
+    let title = document.querySelector('#agenda-title');
 
     title.value = '';
     document.querySelector('#agenda-description').value = '';
@@ -118,29 +120,102 @@ function load_agenda(agenda_id, month, year) {
     document.querySelector('#agenda-view').style.display = 'block';
     document.querySelector('#day-view').style.display = 'none';
 
-    let addUserBtn = document.querySelector('#add-user-btn'),
-        addUserBtnClone = addUserBtn.cloneNode(true);
-
-    addUserBtn.parentNode.replaceChild(addUserBtnClone, addUserBtn);
-
-    addUserBtnClone.addEventListener('click', () => {
-        const username = document.querySelector('#recipient-name').value;
-        add_user(agenda_id, username);
-    })
-
-    let deleteCalendarBtn = document.querySelector('#delete-calendar-btn'),
-        deleteCalendarBtnClone = deleteCalendarBtn.cloneNode(true);
-    
-    deleteCalendarBtn.parentNode.replaceChild(deleteCalendarBtnClone, deleteCalendarBtn);
-
-    deleteCalendarBtnClone.addEventListener('click', () => {
-        delete_calendar(agenda_id);
-    })
-
     if (month == undefined || year == undefined) {
         fetch(`/calendar/${agenda_id}`)
         .then(response => response.json())
         .then(cal => {
+            fetch('/actual_user')
+            .then(response => response.json())
+            .then(data => {
+                if (data.user == cal.creator) {
+                    let addUserBtn = document.querySelector('#add-user-btn'),
+                        addUserBtnClone = addUserBtn.cloneNode(true);
+                
+                    addUserBtn.parentNode.replaceChild(addUserBtnClone, addUserBtn);
+                
+                    addUserBtnClone.addEventListener('click', () => {
+                        const username = document.querySelector('#recipient-name').value;
+                        add_user(agenda_id, username);
+                    });
+
+                    let addOption = document.querySelector('#add-option');
+                    addOption.innerHTML = `
+                        <a id="add-option-btn" data-bs-toggle="modal" data-bs-target="#add-user" title="Adicionar usuário no calendário">
+                            <span class="input-group-text pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
+                                    <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                    <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                                </svg>
+                            </span>
+                        </a>
+                    `;
+
+                    document.querySelector('#add-option-btn').addEventListener('click', () => {
+                        let message = document.querySelector('#message');
+
+                        if (message != null) {
+                            message.remove();
+                        }
+
+                        document.querySelector('#recipient-name').value = '';
+                    });
+
+                    let deleteCalendarBtn = document.querySelector('#delete-calendar-btn'),
+                    deleteCalendarBtnClone = deleteCalendarBtn.cloneNode(true);
+
+                    deleteCalendarBtn.parentNode.replaceChild(deleteCalendarBtnClone, deleteCalendarBtn);
+
+                    deleteCalendarBtnClone.addEventListener('click', () => {
+                        delete_calendar(agenda_id);
+                    })
+
+                    let deleteOption = document.querySelector('#delete-option');
+                    deleteOption.innerHTML = `
+                        <a id="delete-option-btn" data-bs-toggle="modal" data-bs-target="#delete-calendar" title="Excluir calendário">
+                            <span class="input-group-text pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                    <path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"/>
+                                </svg>
+                            </span>
+                        </a>
+                    `;
+                } else {
+                    let addOptionBtn = document.querySelector('#add-option-btn');
+                    let deleteOptionBtn = document.querySelector('#delete-option-btn');
+                    let deleteOption = document.querySelector('#delete-option');
+
+                    if (addOptionBtn != null) {
+                        addOptionBtn.remove();
+                    }
+
+                    if (deleteOptionBtn != null) {
+                        deleteOptionBtn.remove();
+                    }
+
+                    let exitCalendarBtn = document.querySelector('#exit-calendar-btn'),
+                    exitCalendarBtnClone = exitCalendarBtn.cloneNode(true);
+
+                    exitCalendarBtn.parentNode.replaceChild(exitCalendarBtnClone, exitCalendarBtn);
+
+                    exitCalendarBtnClone.addEventListener('click', () => {
+                        exit_calendar(agenda_id);
+                    })
+
+                    deleteOption.innerHTML = `
+                        <a id="delete-option-btn" data-bs-toggle="modal" data-bs-target="#exit-calendar" title="Excluir calendário">
+                            <span class="input-group-text pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                    <path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"/>
+                                </svg>
+                            </span>
+                        </a>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.log('Error:', error);
+            })
+            
             let calendarDiv = document.querySelector('#calendar');
             calendarDiv.innerHTML = cal.calendar;
 
@@ -669,11 +744,11 @@ function create_agenda() {
 
 // LOAD CALENDARS
 function add_agendas(agendas) {
-    agendas.forEach(agenda => {
-        let greatGrandParentDiv = document.createElement('div');
-        greatGrandParentDiv.setAttribute('id', 'card');
-        greatGrandParentDiv.className = 'row row-cols-1 row-cols-md-4 g-4';
+    let greatGrandParentDiv = document.createElement('div');
+    greatGrandParentDiv.setAttribute('id', 'card');
+    greatGrandParentDiv.className = 'row row-cols-1 row-cols-md-4 g-4';
 
+    agendas.forEach(agenda => {
         let mainView = document.querySelector('#yours');
         let grandParentDiv = document.createElement('div');
         let fatherDiv = document.createElement('div');
@@ -707,12 +782,12 @@ function add_agendas(agendas) {
 
 // LOAD PARTNER CALENDARS
 function add_partner_calendars(calendars) {
+    let greatGrandParentDiv = document.createElement('div');
+    greatGrandParentDiv.setAttribute('id', 'card');
+    greatGrandParentDiv.className = 'row row-cols-1 row-cols-md-4 g-4';
+
     calendars.forEach(calendar => {
         document.querySelector('#shared-title').innerHTML = 'Calendários compartilhados';
-
-        let greatGrandParentDiv = document.createElement('div');
-        greatGrandParentDiv.setAttribute('id', 'card');
-        greatGrandParentDiv.className = 'row row-cols-1 row-cols-md-4 g-4';
 
         let mainView = document.querySelector('#shared');
         let grandParentDiv = document.createElement('div');
@@ -747,7 +822,7 @@ function add_partner_calendars(calendars) {
 
 // DELETE CALENDAR
 function delete_calendar(id) {
-    fetch('/delete-calendar', {
+    fetch('/delete_calendar', {
         method: 'POST',
         body: JSON.stringify({
             calendar: id
@@ -760,7 +835,34 @@ function delete_calendar(id) {
         load_main();
     })
     .then(() => {
-        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastElList = [].slice.call(document.querySelectorAll('#delete-toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show());
+    })
+    .catch(error => {
+        console.log('Error:', error);
+    });
+    return false;
+}
+
+// EXIT CALENDAR
+function exit_calendar(id) {
+    fetch('/exit_calendar', {
+        method: 'POST',
+        body: JSON.stringify({
+            calendar: id
+        }),
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(() => {
+        load_main();
+    })
+    .then(() => {
+        var toastElList = [].slice.call(document.querySelectorAll('#exit-toast'))
         var toastList = toastElList.map(function (toastEl) {
             return new bootstrap.Toast(toastEl)
         })
@@ -786,7 +888,33 @@ function add_user(calendar_id, username) {
     })
     .then(response => response.json())
     .then(result => {
-        console.log(result);
+        if (result['ok'] == true) {
+            let myModalEl = document.querySelector('#add-user');
+            var modal = bootstrap.Modal.getInstance(myModalEl);
+            modal.hide();
+            var toastElList = [].slice.call(document.querySelectorAll('#added-toast'))
+            var toastList = toastElList.map(function (toastEl) {
+                return new bootstrap.Toast(toastEl)
+            })
+            toastList.forEach(toast => toast.show());
+        } else {
+            let message = document.querySelector('#message');
+
+            if (message != null) {
+                message.remove();
+            }
+
+            let divAddUser = document.querySelector('#div-add-user');
+            let small = document.createElement('small');
+
+            small.setAttribute('id', 'message');
+
+            small.className = 'text-muted';
+
+            small.innerHTML = result['message'];
+
+            divAddUser.appendChild(small);
+        }
     });
     return false;
 }

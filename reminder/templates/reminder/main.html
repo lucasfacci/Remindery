@@ -8,15 +8,26 @@
     <h2 id="shared-title"></h2>
     <div id="shared"></div>
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="delete-toast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <img src="{% static 'reminder/images/mediumCloud.svg' %}" width="30" class="rounded me-2" alt="Remindery">
                 <strong class="me-auto">Remindery</strong>
-                <small>Agora</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body">
                 O caléndario foi apagado com sucesso.
+            </div>
+        </div>
+    </div>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="exit-toast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="{% static 'reminder/images/mediumCloud.svg' %}" width="30" class="rounded me-2" alt="Remindery">
+                <strong class="me-auto">Remindery</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Você saiu do calendário com sucesso.
             </div>
         </div>
     </div>
@@ -72,14 +83,7 @@
     <div id="calendar-view">
         <nav class="navbar navbar-light bg-light border">
             <div class="container-fluid mx-auto">
-                <a data-bs-toggle="modal" data-bs-target="#add-user" title="Adicionar usuário no calendário">
-                    <span class="input-group-text pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
-                            <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                            <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
-                        </svg>
-                    </span>
-                </a>
+                <div id='add-option'></div>
                 <div class="modal fade" id="add-user" tabindex="-1" aria-labelledby="addUserLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -89,7 +93,7 @@
                             </div>
                             <div class="modal-body">
                                 <form>
-                                    <div class="mb-3">
+                                    <div id="div-add-user" class="mb-3">
                                         <label for="recipient-name" class="col-form-label">Nome do usuário:</label>
                                         <input type="text" class="form-control" id="recipient-name">
                                     </div>
@@ -97,7 +101,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button id="add-user-btn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Adicionar</button>
+                                <button id="add-user-btn" type="button" class="btn btn-primary">Adicionar</button>
                             </div>
                         </div>
                     </div>
@@ -107,13 +111,7 @@
                     aria-expanded="false" aria-label="Toggle navigation">
                     <b id="month-year"></b>
                 </button>
-                <a data-bs-toggle="modal" data-bs-target="#delete-calendar" title="Excluir calendário">
-                    <span class="input-group-text pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                            <path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"/>
-                        </svg>
-                    </span>
-                </a>
+                <div id="delete-option"></div>
                 <div id="delete-calendar" class="modal" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -127,6 +125,23 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                                 <button id="delete-calendar-btn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="exit-calendar" class="modal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Sair do calendário</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Tem certeza que deseja sair deste calendário?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button id="exit-calendar-btn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Sair</button>
                             </div>
                         </div>
                     </div>
@@ -160,6 +175,18 @@
             </div>
         </div>
         <div id="calendar"></div>
+    </div>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="added-toast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="{% static 'reminder/images/mediumCloud.svg' %}" width="30" class="rounded me-2" alt="Remindery">
+                <strong class="me-auto">Remindery</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                O usuário inserido foi adicionado ao calendário.
+            </div>
+        </div>
     </div>
 </div>
 

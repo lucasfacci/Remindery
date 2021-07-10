@@ -46,6 +46,7 @@ def logout_view(request):
     else:
         return JsonResponse({'error': 'GET request required.'}, status=400)
 
+
 def register(request):
     if request.method == 'POST':
         username = request.POST["username"]
@@ -59,11 +60,21 @@ def register(request):
             })
 
         try:
+            usernameExists = User.objects.filter(username=username)
+            emailsExists = User.objects.filter(email=email)
+            if len(usernameExists) > 0:
+                return render(request, 'reminder/register.html', {
+                    'message': 'O nome de usuário inserido já está em uso.'
+                })
+            elif len(emailsExists) > 0:
+                return render(request, 'reminder/register.html', {
+                    'message': 'O email inserido já está em uso.'
+                })
             user = User.objects.create_user(username, email, password)
             user.save()
         except IntegrityError:
             return render(request, 'reminder/register.html', {
-                'message': 'Este email já foi utilizado.'
+                'message': 'Ocorreu um erro.'
             })
         login(request, user)
         return HttpResponseRedirect(reverse('main'))
@@ -168,6 +179,22 @@ def delete_calendar(request):
 
 
 @login_required
+def exit_calendar(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            calendar_id = data.get('calendar',)
+            Partner.objects.get(agenda=calendar_id, user=request.user).delete()
+
+            return JsonResponse({'message': 'Exited from calendar successfully'})
+        except:
+            return JsonResponse({'error': 'POST request required'}, status=400)
+    else:
+        return JsonResponse({'error': 'POST request required.'}, status=400)
+
+
+@login_required
 def calendar_json(request, agenda_id):
     if request.method == 'GET':
         difference = timedelta(hours = -3)
@@ -185,6 +212,7 @@ def calendar_json(request, agenda_id):
             'calendar': cal,
             'agenda': agenda.id,
             'color': agenda.color,
+            'creator': str(agenda.creator),
             'year': year,
             'month': month,
             'day': day
@@ -324,23 +352,27 @@ def add_user(request):
             calendar = data.get('calendar',)
             username = data.get('username',)
 
-            if (username == str(request.user)):
-                return JsonResponse({'message': "You're already the owner of this calendar."}, status=201)
+            if username == str(request.user):
+                return JsonResponse({'message': "Você já é membro deste calendário.", 'ok': False}, status=201)
 
             try:
                 agenda = Agenda.objects.get(id=calendar, creator=request.user)
+
+                if request.user != agenda.creator:
+                    return JsonResponse({'message': "Você não pode adicionar membros a este calendário pois você não é o administrador.", 'ok': False}, status=201)
+                    
                 user = User.objects.get(username=username)
                 Partner.objects.get(agenda=agenda, user=user)
-                return JsonResponse({'message': 'This user is already a member of this calendar.'}, status=201)
+                return JsonResponse({'message': 'O usuário inserido já é membro deste calendário.', 'ok': False}, status=201)
             except:
                 try:
                     agenda = Agenda.objects.get(id=calendar, creator=request.user)
                     user = User.objects.get(username=username)
                     Partner(agenda=agenda, user=user).save()
                 except:
-                    return JsonResponse({'error': 'Request error'}, status=400)
+                    return JsonResponse({'message': 'O usuário inserido não existe.', 'ok': False}, status=201)
 
-            return JsonResponse({'message': 'Partner added successfully.'}, status=201)
+            return JsonResponse({'message': 'Usuário adicionado com sucesso.', 'ok': True}, status=201)
         except:
             return JsonResponse({'error': 'Request error'}, status=400)
     else:
