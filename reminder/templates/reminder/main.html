@@ -82,7 +82,7 @@
 <div id="agenda-view" class="main-content" style="display: none;">
     <div id="calendar-view">
         <nav class="navbar navbar-light bg-light border">
-            <div class="container-fluid mx-auto">
+            <div class="container-fluid">
                 <div id='add-option'></div>
                 <div class="modal fade" id="add-user" tabindex="-1" aria-labelledby="addUserLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -150,28 +150,46 @@
         </nav>
         <div class="collapse" id="navbarToggleExternalContent">
             <div class="bg-light p-4">
-                <form id="change-date" class="row g-3">
-                    {% csrf_token %}
-                    <select name="month" class="form-select">
-                        <option value="1">Janeiro</option>
-                        <option value="2">Fevereiro</option>
-                        <option value="3">Março</option>
-                        <option value="4">Abril</option>
-                        <option value="5">Maio</option>
-                        <option value="6">Junho</option>
-                        <option value="7">Julho</option>
-                        <option value="8">Agosto</option>
-                        <option value="9">Setembro</option>
-                        <option value="10">Outubro</option>
-                        <option value="11">Novembro</option>
-                        <option value="12">Dezembro</option>
-                    </select>
-                    <select name="year" class="form-select">
-                        <option id="this-year"></option>
-                        <option id="next-year"></option>
-                    </select>
-                    <input name="date-submit" type="submit" class="form-control btn btn-primary" />
-                </form>
+                <div class="accordion" id="accordionExample">
+                    <div id="member-option" class="card pointer">
+                        <div class="card-body">
+                            Membros
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button id="accordion-button" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Alterar Data
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                <form id="change-date" class="row g-3">
+                                    {% csrf_token %}
+                                    <select name="month" class="form-select">
+                                        <option value="1">Janeiro</option>
+                                        <option value="2">Fevereiro</option>
+                                        <option value="3">Março</option>
+                                        <option value="4">Abril</option>
+                                        <option value="5">Maio</option>
+                                        <option value="6">Junho</option>
+                                        <option value="7">Julho</option>
+                                        <option value="8">Agosto</option>
+                                        <option value="9">Setembro</option>
+                                        <option value="10">Outubro</option>
+                                        <option value="11">Novembro</option>
+                                        <option value="12">Dezembro</option>
+                                    </select>
+                                    <select name="year" class="form-select">
+                                        <option id="this-year"></option>
+                                        <option id="next-year"></option>
+                                    </select>
+                                    <input name="date-submit" type="submit" class="form-control btn bg-primary" value="Alterar" />
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="calendar"></div>
@@ -190,8 +208,21 @@
     </div>
 </div>
 
+<div id="member-view" class="main-content" style="display: none;">
+    <svg id="return-member" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left pointer" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+    </svg>
+    <div class="text-center">
+        <div class="form-layout text-center mx-auto border shadow bg-white rounded">
+            <p><b class="text-muted">Membros</b></p>
+            <br>
+            <ul id="members" class="list-group list-group-flush"></ul>
+        </div>
+    </div>
+</div>
+
 <div id="day-view" class="main-content" style="display: none;">
-    <svg id="return" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left pointer" viewBox="0 0 16 16">
+    <svg id="return-day" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-arrow-left pointer" viewBox="0 0 16 16">
         <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
     </svg>
     <div id="reminders" class="agenda-day mx-auto border shadow bg-white rounded">

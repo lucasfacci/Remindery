@@ -226,6 +226,7 @@ def calendar_json(request, agenda_id):
             year = data.get('year',)
             
             cal = calendar.HTMLCalendar(calendar.SUNDAY).formatmonth(int(year), int(month))
+            day = datetime.now().day
             agenda = Agenda.objects.get(id=agenda_id)
             beg = cal.find('<tr><th colspan')
             end = cal.find('<tr><th class')
@@ -233,8 +234,11 @@ def calendar_json(request, agenda_id):
             monthCalendar = {
                 'calendar': cal,
                 'agenda': agenda.id,
+                'color': agenda.color,
+                'creator': str(agenda.creator),
                 'year': year,
-                'month': month
+                'month': month,
+                'day': day
             }
             return JsonResponse(monthCalendar)
         except:
@@ -300,6 +304,26 @@ def calendar_day(request, day, month, year, agenda_id):
             }
             remindersJson.append(reminderJson)
         return JsonResponse(remindersJson, safe=False)
+    else:
+        return JsonResponse({'error': 'GET request required.'}, status=400)
+
+
+@login_required
+def calendar_member(request, agenda_id):
+    if request.method == 'GET':
+        calendar = Agenda.objects.get(id=agenda_id)
+        data = Partner.objects.filter(agenda=agenda_id)
+        members = []
+        member = {
+            'user': str(calendar.creator)
+        }
+        members.append(member)
+        for i in data:
+            member = {
+                'user': str(i.user)
+            }
+            members.append(member)
+        return JsonResponse(members, safe=False)
     else:
         return JsonResponse({'error': 'GET request required.'}, status=400)
 

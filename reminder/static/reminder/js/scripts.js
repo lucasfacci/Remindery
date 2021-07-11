@@ -16,6 +16,7 @@ function load_main() {
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'none';
     document.querySelector('#day-view').style.display = 'none';
+    document.querySelector('#member-view').style.display = 'none';
 
     fetch('/agendas')
     .then(response => response.json())
@@ -99,6 +100,7 @@ function load_new() {
     document.querySelector('#new-view').style.display = 'block';
     document.querySelector('#agenda-view').style.display = 'none';
     document.querySelector('#day-view').style.display = 'none';
+    document.querySelector('#member-view').style.display = 'none';
     let title = document.querySelector('#agenda-title');
 
     title.value = '';
@@ -119,6 +121,16 @@ function load_agenda(agenda_id, month, year) {
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'block';
     document.querySelector('#day-view').style.display = 'none';
+    document.querySelector('#member-view').style.display = 'none';
+
+    let navbar = document.querySelector('#navbarToggleExternalContent');
+    navbar.className = 'collapse';
+
+    let accordion = document.querySelector('#collapseOne');
+    accordion.classList.remove('show');
+
+    let accordionButton = document.querySelector('#accordion-button');
+    accordionButton.classList.add('collapsed');
 
     if (month == undefined || year == undefined) {
         fetch(`/calendar/${agenda_id}`)
@@ -215,6 +227,15 @@ function load_agenda(agenda_id, month, year) {
             .catch(error => {
                 console.log('Error:', error);
             })
+
+            let memberOption = document.querySelector('#member-option'),
+                memberOptionClone = memberOption.cloneNode(true);
+                
+            memberOption.parentNode.replaceChild(memberOptionClone, memberOption);
+            
+            memberOptionClone.addEventListener('click', () => {
+                load_member(cal.agenda, cal.creator, cal.color);
+            })
             
             let calendarDiv = document.querySelector('#calendar');
             calendarDiv.innerHTML = cal.calendar;
@@ -290,6 +311,7 @@ function load_agenda(agenda_id, month, year) {
             monthYear.classList.add('text-dark');
             let dateSubmit = document.querySelector('input[name="date-submit"]');
             dateSubmit.id = `${agenda_id}`;
+            dateSubmit.className = `form-control btn ${cal.color} text-light`;
 
             if (cal.month == '1') {
                 monthYear.innerHTML = 'Janeiro ' + cal.year;
@@ -398,7 +420,7 @@ function load_agenda(agenda_id, month, year) {
 
                     if (cal.year == timezoneSP.substring(6, 10)){
                         if (cal.month == timezoneSP.substring(4, 5)) {
-                            if (td.id == timezoneSP.substring(1,2)) {
+                            if (td.id == cal.day) {
                                 td.style.background = '#BBBBBB';
 
                                 td.addEventListener('mouseover', () => {
@@ -526,8 +548,9 @@ function load_day(day, month, year, agenda_id) {
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'none';
     document.querySelector('#day-view').style.display = 'block';
+    document.querySelector('#member-view').style.display = 'none';
 
-    document.querySelector('#return').addEventListener('click', () => {
+    document.querySelector('#return-day').addEventListener('click', () => {
         document.querySelector('#main-view').style.display = 'none';
         document.querySelector('#new-view').style.display = 'none';
         document.querySelector('#agenda-view').style.display = 'block';
@@ -680,6 +703,57 @@ function load_day(day, month, year, agenda_id) {
     .catch(error => {
         console.log('Error:', error);
     })
+}
+
+// LOAD MEMBERS
+function load_member(id, owner, color) {
+    document.querySelector('#main-view').style.display = 'none';
+    document.querySelector('#new-view').style.display = 'none';
+    document.querySelector('#agenda-view').style.display = 'none';
+    document.querySelector('#day-view').style.display = 'none';
+    document.querySelector('#member-view').style.display = 'block';
+
+    remove_members();
+
+    document.querySelector('#return-member').addEventListener('click', () => {
+        document.querySelector('#main-view').style.display = 'none';
+        document.querySelector('#new-view').style.display = 'none';
+        document.querySelector('#agenda-view').style.display = 'block';
+        document.querySelector('#day-view').style.display = 'none';
+        document.querySelector('#member-view').style.display = 'none';
+
+        let navbar = document.querySelector('#navbarToggleExternalContent');
+        navbar.className = 'collapse';
+    })
+
+    fetch(`member/${id}`)
+    .then(response => response.json())
+    .then(members => {
+        let membersList = document.querySelector('#members');
+        members.forEach(member => {
+            let li = document.createElement('li');
+            li.id = 'single-member';
+            li.className = 'list-group-item d-flex justify-content-between align-items-start';
+            if (member.user == owner) {
+                let span = document.createElement('span');
+                span.className = `badge rounded-pill bg-warning text-dark`;
+                span.innerHTML = 'Administrador';
+                li.innerHTML = `${member.user}`;
+                li.appendChild(span);
+            } else {
+                let span = document.createElement('span');
+                span.className = `badge rounded-pill ${color}`;
+                span.innerHTML = 'Membro';
+                li.innerHTML = `${member.user}`;
+                li.appendChild(span);
+            }
+            membersList.appendChild(li);
+        })
+        let nullLi = document.createElement('li');
+        nullLi.id = 'single-member';
+        nullLi.className = 'list-group-item d-flex justify-content-between align-items-start';
+        membersList.appendChild(nullLi);
+    });
 }
 
 // CREATE CALENDAR
@@ -946,6 +1020,14 @@ function remove_reminders() {
     }
     for (j = 0; j < inputReminders.length; j++) {
         inputReminders[j].remove();
+    }
+}
+
+// HIDE MEMBER
+function remove_members() {
+    const members = document.querySelectorAll('#single-member');
+    for (i = 0; i < members.length; i++) {
+        members[i].remove();
     }
 }
 
