@@ -14,6 +14,7 @@ urlpatterns = [
     path('new', views.new, name='new'),
     path('delete_calendar', views.delete_calendar, name='delete_calendar'),
     path('exit_calendar', views.exit_calendar, name='exit_calendar'),
+    path('kick_calendar', views.kick_calendar, name='kick_calendar'),
     path('calendar/<int:agenda_id>', views.calendar_json, name='calendar'),
     path('day/<int:day>/<int:month>/<int:year>/<int:agenda_id>', views.calendar_day, name='day'),
     path('member/<int:agenda_id>', views.calendar_member, name='member'),

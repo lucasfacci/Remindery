@@ -1,8 +1,10 @@
 import calendar
 from datetime import date, datetime, timezone, timedelta
+from typing import AsyncGenerator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.db.utils import ConnectionRouter
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -185,11 +187,44 @@ def exit_calendar(request):
             data = json.loads(request.body)
             
             calendar_id = data.get('calendar',)
-            Partner.objects.get(agenda=calendar_id, user=request.user).delete()
 
-            return JsonResponse({'message': 'Exited from calendar successfully'})
+            currentCalendar = Agenda.objects.get(id=calendar_id)
+
+            if currentCalendar.creator == request.user:
+                try:
+                    partners = Partner.objects.filter(agenda=calendar_id)
+                    user = User.objects.get(id=partners[0].user.id)
+                    Partner.objects.get(agenda=calendar_id, user=partners[0].user).delete()
+                    currentCalendar.creator = user
+                    currentCalendar.save()
+                except:
+                    currentCalendar.delete()
+                return JsonResponse({'message': 'Exited from calendar successfully'}, status=201)
+            
+            Partner.objects.get(agenda=calendar_id, user=request.user).delete()
+            
+            return JsonResponse({'message': 'Exited from calendar successfully'}, status=201)
         except:
-            return JsonResponse({'error': 'POST request required'}, status=400)
+            return JsonResponse({'error': 'Request error'}, status=400)
+    else:
+        return JsonResponse({'error': 'POST request required.'}, status=400)
+
+
+@login_required
+def kick_calendar(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            calendar_id = data.get('calendar',)
+            member = data.get('member',)
+
+            user = User.objects.get(username=member)
+            Partner.objects.get(agenda=calendar_id, user=user).delete()
+
+            return JsonResponse({'message': 'User kicked from the calendar successfully'}, status=201)
+        except:
+            return JsonResponse({'error': 'Request error'}, status=400)
     else:
         return JsonResponse({'error': 'POST request required.'}, status=400)
 
@@ -312,18 +347,26 @@ def calendar_day(request, day, month, year, agenda_id):
 def calendar_member(request, agenda_id):
     if request.method == 'GET':
         calendar = Agenda.objects.get(id=agenda_id)
-        data = Partner.objects.filter(agenda=agenda_id)
+        data = Partner.objects.filter(agenda=agenda_id).order_by('-user')
+        isMember = False
         members = []
+        if str(calendar.creator) == str(request.user):
+            isMember = True
         member = {
             'user': str(calendar.creator)
         }
         members.append(member)
         for i in data:
+            if str(i.user) == str(request.user):
+                isMember = True
             member = {
                 'user': str(i.user)
             }
             members.append(member)
-        return JsonResponse(members, safe=False)
+        if isMember == True:
+            return JsonResponse(members, safe=False)
+        else:
+            return JsonResponse({'error': "You're not a member of this calendar."})
     else:
         return JsonResponse({'error': 'GET request required.'}, status=400)
 
@@ -356,9 +399,17 @@ def delete_reminder(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-
+            calendar = data.get('calendar',)
             reminder = data.get('reminder',)
-            Reminder.objects.get(id=reminder).delete()
+            try:
+                Partner.objects.get(agenda=calendar, user=request.user)
+                Reminder.objects.get(id=reminder, agenda=calendar).delete()
+            except:
+                try:
+                    Agenda.objects.get(id=calendar, creator=request.user)
+                    Reminder.objects.get(id=reminder, agenda=calendar).delete() 
+                except:
+                    return JsonResponse({'error': 'Request error'}, status=400)
 
             return JsonResponse({'message': 'Reminder deleted successfully.'}, status=201)
         except:

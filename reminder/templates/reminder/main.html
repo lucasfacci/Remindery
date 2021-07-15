@@ -129,23 +129,6 @@
                         </div>
                     </div>
                 </div>
-                <div id="exit-calendar" class="modal" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Sair do calendário</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Tem certeza que deseja sair deste calendário?</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                <button id="exit-calendar-btn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Sair</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </nav>
         <div class="collapse" id="navbarToggleExternalContent">
@@ -215,8 +198,53 @@
     <div class="text-center">
         <div class="form-layout text-center mx-auto border shadow bg-white rounded">
             <p><b class="text-muted">Membros</b></p>
-            <br>
             <ul id="members" class="list-group list-group-flush"></ul>
+        </div>
+    </div>
+    <div id="exit-calendar" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sair do calendário</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja sair deste calendário?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button id="exit-calendar-btn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Sair</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="kick-calendar" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Remover do calendário</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="member-name"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button id="kick-calendar-btn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Remover</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="kick-toast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img src="{% static 'reminder/images/mediumCloud.svg' %}" width="30" class="rounded me-2" alt="Remindery">
+                <strong class="me-auto">Remindery</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                O usuário foi removido do caléndario com sucesso.
+            </div>
         </div>
     </div>
 </div>

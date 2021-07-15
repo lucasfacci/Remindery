@@ -194,7 +194,6 @@ function load_agenda(agenda_id, month, year) {
                 } else {
                     let addOptionBtn = document.querySelector('#add-option-btn');
                     let deleteOptionBtn = document.querySelector('#delete-option-btn');
-                    let deleteOption = document.querySelector('#delete-option');
 
                     if (addOptionBtn != null) {
                         addOptionBtn.remove();
@@ -203,25 +202,6 @@ function load_agenda(agenda_id, month, year) {
                     if (deleteOptionBtn != null) {
                         deleteOptionBtn.remove();
                     }
-
-                    let exitCalendarBtn = document.querySelector('#exit-calendar-btn'),
-                    exitCalendarBtnClone = exitCalendarBtn.cloneNode(true);
-
-                    exitCalendarBtn.parentNode.replaceChild(exitCalendarBtnClone, exitCalendarBtn);
-
-                    exitCalendarBtnClone.addEventListener('click', () => {
-                        exit_calendar(agenda_id);
-                    })
-
-                    deleteOption.innerHTML = `
-                        <a id="delete-option-btn" data-bs-toggle="modal" data-bs-target="#exit-calendar" title="Excluir calendário">
-                            <span class="input-group-text pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                                    <path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"/>
-                                </svg>
-                            </span>
-                        </a>
-                    `;
                 }
             })
             .catch(error => {
@@ -234,7 +214,7 @@ function load_agenda(agenda_id, month, year) {
             memberOption.parentNode.replaceChild(memberOptionClone, memberOption);
             
             memberOptionClone.addEventListener('click', () => {
-                load_member(cal.agenda, cal.creator, cal.color);
+                load_member(cal.agenda, cal.creator);
             })
             
             let calendarDiv = document.querySelector('#calendar');
@@ -590,6 +570,7 @@ function load_day(day, month, year, agenda_id) {
                     fetch('/delete', {
                         method: 'POST',
                         body: JSON.stringify({
+                            calendar: agenda_id,
                             reminder: id
                         }),
                         headers: {
@@ -706,7 +687,7 @@ function load_day(day, month, year, agenda_id) {
 }
 
 // LOAD MEMBERS
-function load_member(id, owner, color) {
+function load_member(id, owner) {
     document.querySelector('#main-view').style.display = 'none';
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'none';
@@ -726,33 +707,86 @@ function load_member(id, owner, color) {
         navbar.className = 'collapse';
     })
 
-    fetch(`member/${id}`)
+    fetch('/actual_user')
     .then(response => response.json())
-    .then(members => {
-        let membersList = document.querySelector('#members');
-        members.forEach(member => {
-            let li = document.createElement('li');
-            li.id = 'single-member';
-            li.className = 'list-group-item d-flex justify-content-between align-items-start';
-            if (member.user == owner) {
-                let span = document.createElement('span');
-                span.className = `badge rounded-pill bg-warning text-dark`;
-                span.innerHTML = 'Administrador';
-                li.innerHTML = `${member.user}`;
-                li.appendChild(span);
-            } else {
-                let span = document.createElement('span');
-                span.className = `badge rounded-pill ${color}`;
-                span.innerHTML = 'Membro';
-                li.innerHTML = `${member.user}`;
-                li.appendChild(span);
-            }
-            membersList.appendChild(li);
+    .then(data => {
+        fetch(`member/${id}`)
+        .then(response => response.json())
+        .then(members => {
+            let membersList = document.querySelector('#members');
+            members.forEach(member => {
+                let li = document.createElement('li');
+                li.id = 'single-member';
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.setAttribute('name', member.user);
+                
+                if (member.user == owner) {
+                    let b = document.createElement('b');
+                    b.innerHTML = `${member.user} &#x1F451`;
+                    li.appendChild(b);
+                } else {
+                    let b = document.createElement('b');
+                    b.innerHTML = `${member.user}`;
+                    li.appendChild(b);
+                }
+
+                if (data.user == member.user) {
+                    let a = document.createElement('a');
+                    a.id = 'member-user-exit';
+                    a.className = 'pointer text-dark';
+                    a.style.textDecoration = 'none';
+                    a.innerHTML = 'x';
+                    a.setAttribute('data-bs-toggle', 'modal');
+                    a.setAttribute('data-bs-target', '#exit-calendar');
+                    a.setAttribute('title', 'Sair do calendário');
+
+                    let exitCalendarBtn = document.querySelector('#exit-calendar-btn'),
+                        exitCalendarBtnClone = exitCalendarBtn.cloneNode(true);
+                
+                    exitCalendarBtn.parentNode.replaceChild(exitCalendarBtnClone, exitCalendarBtn);
+
+                    exitCalendarBtnClone.addEventListener('click', () => {
+                        exit_calendar(id);
+                    })
+                    li.appendChild(a);
+                } else if (data.user == owner) {
+                    let a = document.createElement('a');
+                    a.id = 'member-user-exit';
+                    a.className = 'pointer text-dark';
+                    a.style.textDecoration = 'none';
+                    a.innerHTML = 'x';
+                    a.setAttribute('data-bs-toggle', 'modal');
+                    a.setAttribute('data-bs-target', '#kick-calendar');
+                    a.setAttribute('title', 'Remover do calendário');
+
+                    a.addEventListener('click', () => {
+                        document.querySelector('#member-name').innerHTML = `Tem certeza que deseja remover "${member.user}" deste calendário?`;
+
+                        let kickCalendarBtn = document.querySelector('#kick-calendar-btn'),
+                            kickCalendarBtnClone = kickCalendarBtn.cloneNode(true);
+    
+                        kickCalendarBtn.parentNode.replaceChild(kickCalendarBtnClone, kickCalendarBtn);
+
+                        kickCalendarBtnClone.addEventListener('click', () => {
+                            kick_calendar(id, member.user);
+                        })
+                    })
+                    li.appendChild(a);
+                }
+
+                membersList.appendChild(li);
+            })
+            let nullLi = document.createElement('li');
+            nullLi.id = 'single-member';
+            nullLi.className = 'list-group-item d-flex justify-content-between align-items-center';
+            membersList.appendChild(nullLi);
         })
-        let nullLi = document.createElement('li');
-        nullLi.id = 'single-member';
-        nullLi.className = 'list-group-item d-flex justify-content-between align-items-start';
-        membersList.appendChild(nullLi);
+        .catch(error => {
+            console.log('Error:', error);
+        });
+    })
+    .catch(error => {
+        console.log('Error:', error);
     });
 }
 
@@ -922,11 +956,11 @@ function delete_calendar(id) {
 }
 
 // EXIT CALENDAR
-function exit_calendar(id) {
+function exit_calendar(calendar_id) {
     fetch('/exit_calendar', {
         method: 'POST',
         body: JSON.stringify({
-            calendar: id
+            calendar: calendar_id
         }),
         headers: {
             'X-CSRFToken': getCookie('csrftoken')
@@ -937,6 +971,34 @@ function exit_calendar(id) {
     })
     .then(() => {
         var toastElList = [].slice.call(document.querySelectorAll('#exit-toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show());
+    })
+    .catch(error => {
+        console.log('Error:', error);
+    });
+    return false;
+}
+
+// KICK USER FROM CALENDAR
+function kick_calendar(calendar_id, member) {
+    fetch('/kick_calendar', {
+        method: 'POST',
+        body: JSON.stringify({
+            calendar: calendar_id,
+            member: member
+        }),
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(() => {
+        document.querySelector(`li[name="${member}"]`).remove()
+    })
+    .then(() => {
+        var toastElList = [].slice.call(document.querySelectorAll('#kick-toast'))
         var toastList = toastElList.map(function (toastEl) {
             return new bootstrap.Toast(toastEl)
         })
