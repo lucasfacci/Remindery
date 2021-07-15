@@ -18,6 +18,7 @@ urlpatterns = [
     path('calendar/<int:agenda_id>', views.calendar_json, name='calendar'),
     path('day/<int:day>/<int:month>/<int:year>/<int:agenda_id>', views.calendar_day, name='day'),
     path('member/<int:agenda_id>', views.calendar_member, name='member'),
+    path('transfer_admin', views.transfer_admin, name='transfer_admin'),
     path('create', views.new_reminder, name='create'),
     path('delete', views.delete_reminder, name='delete'),
     path('add_user', views.add_user, name='add_user'),

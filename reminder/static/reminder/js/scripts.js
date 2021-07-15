@@ -214,7 +214,7 @@ function load_agenda(agenda_id, month, year) {
             memberOption.parentNode.replaceChild(memberOptionClone, memberOption);
             
             memberOptionClone.addEventListener('click', () => {
-                load_member(cal.agenda, cal.creator);
+                load_member(cal.agenda, cal.creator, cal.month, cal.year);
             })
             
             let calendarDiv = document.querySelector('#calendar');
@@ -379,6 +379,15 @@ function load_agenda(agenda_id, month, year) {
         })
         .then(response => response.json())
         .then(cal => {
+            let memberOption = document.querySelector('#member-option'),
+                memberOptionClone = memberOption.cloneNode(true);
+                
+            memberOption.parentNode.replaceChild(memberOptionClone, memberOption);
+            
+            memberOptionClone.addEventListener('click', () => {
+                load_member(cal.agenda, cal.creator, cal.month, cal.year);
+            })
+
             let calendarDiv = document.querySelector('#calendar');
             calendarDiv.innerHTML = cal.calendar;
 
@@ -440,6 +449,27 @@ function load_agenda(agenda_id, month, year) {
 
                     td.addEventListener('click', () => {
                         load_day(td.id, cal.month, cal.year, agenda_id);
+                    })
+
+                    fetch(`/day/${tdContent}/${cal.month}/${cal.year}/${cal.agenda}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data[0].content != undefined) {
+                            let counter = 0
+
+                            while (counter < data.length) {
+                                counter++;
+                            }
+                            
+                            let span = document.createElement('span');
+                            span.className = `badge ${cal.color}`;
+                            span.innerHTML = `${counter}`;
+                            span.style.float = 'right';
+                            td.appendChild(span);
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Error:', error);
                     })
                 }
                 td.style.height = '90px';
@@ -530,14 +560,16 @@ function load_day(day, month, year, agenda_id) {
     document.querySelector('#day-view').style.display = 'block';
     document.querySelector('#member-view').style.display = 'none';
 
-    document.querySelector('#return-day').addEventListener('click', () => {
-        document.querySelector('#main-view').style.display = 'none';
-        document.querySelector('#new-view').style.display = 'none';
-        document.querySelector('#agenda-view').style.display = 'block';
-        document.querySelector('#day-view').style.display = 'none';
+    let returnDay = document.querySelector('#return-day'),
+        returnDayClone = returnDay.cloneNode(true);
 
+    returnDay.parentNode.replaceChild(returnDayClone, returnDay);
+
+    returnDayClone.addEventListener('click', () => {
         let navbar = document.querySelector('#navbarToggleExternalContent');
         navbar.className = 'collapse';
+
+        load_agenda(agenda_id, month, year);
     })
 
     reminders = document.querySelectorAll('#reminder');
@@ -687,7 +719,7 @@ function load_day(day, month, year, agenda_id) {
 }
 
 // LOAD MEMBERS
-function load_member(id, owner) {
+function load_member(agenda_id, owner, month, year) {
     document.querySelector('#main-view').style.display = 'none';
     document.querySelector('#new-view').style.display = 'none';
     document.querySelector('#agenda-view').style.display = 'none';
@@ -696,21 +728,22 @@ function load_member(id, owner) {
 
     remove_members();
 
-    document.querySelector('#return-member').addEventListener('click', () => {
-        document.querySelector('#main-view').style.display = 'none';
-        document.querySelector('#new-view').style.display = 'none';
-        document.querySelector('#agenda-view').style.display = 'block';
-        document.querySelector('#day-view').style.display = 'none';
-        document.querySelector('#member-view').style.display = 'none';
+    let returnMember = document.querySelector('#return-member'),
+        returnMemberClone = returnMember.cloneNode(true);
 
+    returnMember.parentNode.replaceChild(returnMemberClone, returnMember);
+
+    returnMemberClone.addEventListener('click', () => {
         let navbar = document.querySelector('#navbarToggleExternalContent');
         navbar.className = 'collapse';
+
+        load_agenda(agenda_id, month, year);
     })
 
     fetch('/actual_user')
     .then(response => response.json())
     .then(data => {
-        fetch(`member/${id}`)
+        fetch(`member/${agenda_id}`)
         .then(response => response.json())
         .then(members => {
             let membersList = document.querySelector('#members');
@@ -725,14 +758,60 @@ function load_member(id, owner) {
                     b.innerHTML = `${member.user} &#x1F451`;
                     li.appendChild(b);
                 } else {
-                    let b = document.createElement('b');
-                    b.innerHTML = `${member.user}`;
-                    li.appendChild(b);
+                    if (data.user == owner) {
+                        let div = document.createElement('div');
+                        let b = document.createElement('b');
+                        let a = document.createElement('a');
+                        b.innerHTML = `${member.user}`;
+                        a.className = 'pointer text-dark';
+                        a.style.textDecoration = 'none';
+                        a.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-up" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M11.5 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L11 2.707V14.5a.5.5 0 0 0 .5.5zm-7-14a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5z"/>
+                            </svg>
+                        `;
+                        a.setAttribute('data-bs-toggle', 'modal');
+                        a.setAttribute('data-bs-target', '#transfer-admin');
+                        a.setAttribute('title', 'Tornar administrador');
+
+                        a.addEventListener('click', () => {
+                            let transferAdminBtn = document.querySelector('#transfer-admin-btn'),
+                                transferAdminBtnClone = transferAdminBtn.cloneNode(true);
+                    
+                            transferAdminBtn.parentNode.replaceChild(transferAdminBtnClone, transferAdminBtn);
+
+                            transferAdminBtnClone.addEventListener('click', () => {
+                                fetch('/transfer_admin', {
+                                    method: 'POST',
+                                    body: JSON.stringify({
+                                        calendar: agenda_id,
+                                        member: member.user
+                                    }),
+                                    headers: {
+                                        'X-CSRFToken': getCookie('csrftoken')
+                                    }
+                                })
+                                .then(response => response.json())
+                                .then(result => {
+                                    load_member(agenda_id, result['owner'], month, year);
+                                })
+                                .catch(error => {
+                                    console.log('Error:', error);
+                                });
+                            });
+                        });
+                        div.appendChild(b);
+                        div.appendChild(a);
+                        li.appendChild(div);
+                    } else {
+                        let b = document.createElement('b');
+                        b.innerHTML = `${member.user}`;
+                        li.appendChild(b);
+                    }
                 }
 
                 if (data.user == member.user) {
                     let a = document.createElement('a');
-                    a.id = 'member-user-exit';
                     a.className = 'pointer text-dark';
                     a.style.textDecoration = 'none';
                     a.innerHTML = 'x';
@@ -746,12 +825,11 @@ function load_member(id, owner) {
                     exitCalendarBtn.parentNode.replaceChild(exitCalendarBtnClone, exitCalendarBtn);
 
                     exitCalendarBtnClone.addEventListener('click', () => {
-                        exit_calendar(id);
+                        exit_calendar(agenda_id);
                     })
                     li.appendChild(a);
                 } else if (data.user == owner) {
                     let a = document.createElement('a');
-                    a.id = 'member-user-exit';
                     a.className = 'pointer text-dark';
                     a.style.textDecoration = 'none';
                     a.innerHTML = 'x';
@@ -768,7 +846,7 @@ function load_member(id, owner) {
                         kickCalendarBtn.parentNode.replaceChild(kickCalendarBtnClone, kickCalendarBtn);
 
                         kickCalendarBtnClone.addEventListener('click', () => {
-                            kick_calendar(id, member.user);
+                            kick_calendar(agenda_id, member.user);
                         })
                     })
                     li.appendChild(a);

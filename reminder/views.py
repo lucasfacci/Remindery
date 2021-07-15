@@ -372,6 +372,31 @@ def calendar_member(request, agenda_id):
 
 
 @login_required
+def transfer_admin(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            calendar_id = data.get('calendar',)
+            member = data.get('member',)
+
+            currentCalendar = Agenda.objects.get(id=calendar_id)
+            calendar = Agenda.objects.get(id=calendar_id, creator=request.user)
+            user = User.objects.get(username=member)
+
+            Partner.objects.get(agenda=calendar_id, user=user).delete()
+            currentCalendar.creator = user
+            currentCalendar.save()
+            Partner(agenda=calendar, user=request.user).save()
+
+            return JsonResponse({'message': 'Administrator transfered successfully.', 'owner': str(user)}, status=201)
+        except:
+            return JsonResponse({'error': 'Request error'}, status=400)
+    else:
+        return JsonResponse({'error': 'GET request required.'}, status=400)
+
+
+@login_required
 def new_reminder(request):
     if request.method == 'POST':
         try:
