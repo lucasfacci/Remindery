@@ -327,38 +327,20 @@ function load_agenda(agenda_id, month, year) {
             nextYear.innerHTML = cal.year + 1;
 
             calendarThs.forEach(th => {
-                if (screenWidth > 600) {
-                    if (th.innerHTML == 'Sun') {
-                        th.innerHTML = 'Domingo';
-                    } else if (th.innerHTML == 'Mon') {
-                        th.innerHTML = 'Segunda';
-                    } else if (th.innerHTML == 'Tue') {
-                        th.innerHTML = 'Terça';
-                    } else if (th.innerHTML == 'Wed') {
-                        th.innerHTML = 'Quarta';
-                    } else if (th.innerHTML == 'Thu') {
-                        th.innerHTML = 'Quinta';
-                    } else if (th.innerHTML == 'Fri') {
-                        th.innerHTML = 'Sexta';
-                    } else if (th.innerHTML == 'Sat') {
-                        th.innerHTML = 'Sábado';
-                    }
-                } else {
-                    if (th.innerHTML == 'Sun') {
-                        th.innerHTML = 'Dom';
-                    } else if (th.innerHTML == 'Mon') {
-                        th.innerHTML = 'Seg';
-                    } else if (th.innerHTML == 'Tue') {
-                        th.innerHTML = 'Ter';
-                    } else if (th.innerHTML == 'Wed') {
-                        th.innerHTML = 'Qua';
-                    } else if (th.innerHTML == 'Thu') {
-                        th.innerHTML = 'Qui';
-                    } else if (th.innerHTML == 'Fri') {
-                        th.innerHTML = 'Sex';
-                    } else if (th.innerHTML == 'Sat') {
-                        th.innerHTML = 'Sáb';
-                    }
+                if (th.innerHTML == 'Sun') {
+                    th.innerHTML = 'Dom';
+                } else if (th.innerHTML == 'Mon') {
+                    th.innerHTML = 'Seg';
+                } else if (th.innerHTML == 'Tue') {
+                    th.innerHTML = 'Ter';
+                } else if (th.innerHTML == 'Wed') {
+                    th.innerHTML = 'Qua';
+                } else if (th.innerHTML == 'Thu') {
+                    th.innerHTML = 'Qui';
+                } else if (th.innerHTML == 'Fri') {
+                    th.innerHTML = 'Sex';
+                } else if (th.innerHTML == 'Sat') {
+                    th.innerHTML = 'Sáb';
                 }
                 th.classList.add('text-center');
             })
@@ -510,38 +492,20 @@ function load_agenda(agenda_id, month, year) {
             }
 
             calendarThs.forEach(th => {
-                if (screenWidth > 600) {
-                    if (th.innerHTML == 'Sun') {
-                        th.innerHTML = 'Domingo';
-                    } else if (th.innerHTML == 'Mon') {
-                        th.innerHTML = 'Segunda';
-                    } else if (th.innerHTML == 'Tue') {
-                        th.innerHTML = 'Terça';
-                    } else if (th.innerHTML == 'Wed') {
-                        th.innerHTML = 'Quarta';
-                    } else if (th.innerHTML == 'Thu') {
-                        th.innerHTML = 'Quinta';
-                    } else if (th.innerHTML == 'Fri') {
-                        th.innerHTML = 'Sexta';
-                    } else if (th.innerHTML == 'Sat') {
-                        th.innerHTML = 'Sábado';
-                    }
-                } else {
-                    if (th.innerHTML == 'Sun') {
-                        th.innerHTML = 'Dom';
-                    } else if (th.innerHTML == 'Mon') {
-                        th.innerHTML = 'Seg';
-                    } else if (th.innerHTML == 'Tue') {
-                        th.innerHTML = 'Ter';
-                    } else if (th.innerHTML == 'Wed') {
-                        th.innerHTML = 'Qua';
-                    } else if (th.innerHTML == 'Thu') {
-                        th.innerHTML = 'Qui';
-                    } else if (th.innerHTML == 'Fri') {
-                        th.innerHTML = 'Sex';
-                    } else if (th.innerHTML == 'Sat') {
-                        th.innerHTML = 'Sáb';
-                    }
+                if (th.innerHTML == 'Sun') {
+                    th.innerHTML = 'Dom';
+                } else if (th.innerHTML == 'Mon') {
+                    th.innerHTML = 'Seg';
+                } else if (th.innerHTML == 'Tue') {
+                    th.innerHTML = 'Ter';
+                } else if (th.innerHTML == 'Wed') {
+                    th.innerHTML = 'Qua';
+                } else if (th.innerHTML == 'Thu') {
+                    th.innerHTML = 'Qui';
+                } else if (th.innerHTML == 'Fri') {
+                    th.innerHTML = 'Sex';
+                } else if (th.innerHTML == 'Sat') {
+                    th.innerHTML = 'Sáb';
                 }
                 th.classList.add('text-center');
             })
