@@ -1,10 +1,8 @@
 import calendar
 from datetime import date, datetime, timezone, timedelta
-from typing import AsyncGenerator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.db.utils import ConnectionRouter
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -245,6 +243,7 @@ def calendar_json(request, agenda_id):
         cal = cal[:beg] + cal[end:]
         monthCalendar = {
             'calendar': cal,
+            'title': agenda.title,
             'agenda': agenda.id,
             'color': agenda.color,
             'creator': str(agenda.creator),
@@ -269,6 +268,7 @@ def calendar_json(request, agenda_id):
             monthCalendar = {
                 'calendar': cal,
                 'agenda': agenda.id,
+                'title': agenda.title,
                 'color': agenda.color,
                 'creator': str(agenda.creator),
                 'year': year,

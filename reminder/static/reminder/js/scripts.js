@@ -286,7 +286,6 @@ function load_agenda(agenda_id, month, year) {
             })
 
             let calendarThs = document.querySelectorAll('th');
-            let screenWidth = window.screen.width;
             let monthYear = document.querySelector('#month-year');
             monthYear.classList.add('text-dark');
             let dateSubmit = document.querySelector('input[name="date-submit"]');
@@ -459,7 +458,6 @@ function load_agenda(agenda_id, month, year) {
             })
 
             let calendarThs = document.querySelectorAll('th');
-            let screenWidth = window.screen.width;
             let monthYear = document.querySelector('#month-year');
             monthYear.classList.add('text-dark');
             let dateSubmit = document.querySelector('input[name="date-submit"]');
