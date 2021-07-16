@@ -360,6 +360,78 @@ function load_agenda(agenda_id, month, year) {
         })
         .then(response => response.json())
         .then(cal => {
+            fetch('/actual_user')
+            .then(response => response.json())
+            .then(data => {
+                if (data.user == cal.creator) {
+                    let addUserBtn = document.querySelector('#add-user-btn'),
+                        addUserBtnClone = addUserBtn.cloneNode(true);
+                
+                    addUserBtn.parentNode.replaceChild(addUserBtnClone, addUserBtn);
+                
+                    addUserBtnClone.addEventListener('click', () => {
+                        const username = document.querySelector('#recipient-name').value;
+                        add_user(agenda_id, username);
+                    });
+
+                    let addOption = document.querySelector('#add-option');
+                    addOption.innerHTML = `
+                        <a id="add-option-btn" data-bs-toggle="modal" data-bs-target="#add-user" title="Adicionar usuário no calendário">
+                            <span class="input-group-text pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-plus-fill" viewBox="0 0 16 16">
+                                    <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                    <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+                                </svg>
+                            </span>
+                        </a>
+                    `;
+
+                    document.querySelector('#add-option-btn').addEventListener('click', () => {
+                        let message = document.querySelector('#message');
+
+                        if (message != null) {
+                            message.remove();
+                        }
+
+                        document.querySelector('#recipient-name').value = '';
+                    });
+
+                    let deleteCalendarBtn = document.querySelector('#delete-calendar-btn'),
+                    deleteCalendarBtnClone = deleteCalendarBtn.cloneNode(true);
+
+                    deleteCalendarBtn.parentNode.replaceChild(deleteCalendarBtnClone, deleteCalendarBtn);
+
+                    deleteCalendarBtnClone.addEventListener('click', () => {
+                        delete_calendar(agenda_id);
+                    })
+
+                    let deleteOption = document.querySelector('#delete-option');
+                    deleteOption.innerHTML = `
+                        <a id="delete-option-btn" data-bs-toggle="modal" data-bs-target="#delete-calendar" title="Excluir calendário">
+                            <span class="input-group-text pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                                    <path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"/>
+                                </svg>
+                            </span>
+                        </a>
+                    `;
+                } else {
+                    let addOptionBtn = document.querySelector('#add-option-btn');
+                    let deleteOptionBtn = document.querySelector('#delete-option-btn');
+
+                    if (addOptionBtn != null) {
+                        addOptionBtn.remove();
+                    }
+
+                    if (deleteOptionBtn != null) {
+                        deleteOptionBtn.remove();
+                    }
+                }
+            })
+            .catch(error => {
+                console.log('Error:', error);
+            })
+            
             let memberOption = document.querySelector('#member-option'),
                 memberOptionClone = memberOption.cloneNode(true);
                 
