@@ -26,6 +26,9 @@ SECRET_KEY = KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# SECURITY WARNING: set secure ssl redirect to True in production!
+SECURE_SSL_REDIRECT = False
+
 ALLOWED_HOSTS = []
 
 
