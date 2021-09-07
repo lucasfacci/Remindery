@@ -49,10 +49,15 @@ def logout_view(request):
 
 def register(request):
     if request.method == 'POST':
-        username = request.POST["username"]
+        username = request.POST['username']
         email = request.POST['email']
         password = request.POST['password']
         confirmation = request.POST['confirmation']
+
+        if username == '' or email == '' or password == '' or confirmation == '':
+            return render(request, 'reminder/register.html', {
+                'message': 'É necessário preencher todos os campos.'
+            })
 
         if password != confirmation:
             return render(request, 'reminder/register.html', {
