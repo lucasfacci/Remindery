@@ -33,7 +33,7 @@ After that, it's necessary to create a config.py file at the root of the project
 ### Linux
 
 ```
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 python3 manage.py makemigrations
 python3 manage.py migrate
 python3 manage.py runserver
