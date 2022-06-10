@@ -52,4 +52,4 @@ python manage.py runserver
 
 ### Troubleshooting
 
-If having problemm with any of the commands on the "How to run the application" section, try 'python3' instead of 'python' and/or 'pip3' instead of 'pip'.
+If you're having problems with any of the commands on the "How to run the application" section, try 'python3' instead of 'python' and/or 'pip3' instead of 'pip'.
